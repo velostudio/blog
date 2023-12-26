@@ -84,4 +84,4 @@ This allows to run any client code without giving any security risk to the host 
 
 * The end (just a beginning)
 
-Imagine people can use *Rust*, *C*, *C++*, *Java*, *Go* to write client apps that can be easily distributed via HTTP3 and executed securily using *wasmtime* runtime, *bevy* is used as portal (a.k.a. browser) for easy access to *wgpu* functionalities. What a world it would be!
+Imagine people can use *Rust*, *C*, *C++*, *Java*, *Go* to write client apps that can be easily distributed via HTTP3 and executed securely using *wasmtime* runtime, *bevy* is used as portal (a.k.a. browser) for easy access to *wgpu* functionalities. What a world it would be!
