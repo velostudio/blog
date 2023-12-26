@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-12-26 Tue 23:27 -->
+<!-- 2023-12-26 Tue 23:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Levo: web as it should be</title>
@@ -202,16 +202,16 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgb426d64">1. Preface</a></li>
-<li><a href="#orge25fb1f">2. Demo</a></li>
-<li><a href="#org52c5516">3. Levo high-level architecture</a></li>
-<li><a href="#orgf049d46">4. The end (just a beginning)</a></li>
+<li><a href="#org3f6e3fb">1. Preface</a></li>
+<li><a href="#org67fcd38">2. Demo</a></li>
+<li><a href="#org43ee78a">3. Levo high-level architecture</a></li>
+<li><a href="#org5026690">4. The end (just a beginning)</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb426d64" class="outline-2">
-<h2 id="orgb426d64"><span class="section-number-2">1.</span> Preface</h2>
+<div id="outline-container-org3f6e3fb" class="outline-2">
+<h2 id="org3f6e3fb"><span class="section-number-2">1.</span> Preface</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Imagine a parallel universe where there weren't any JavaScript but rather there were secure <b>WASM</b>, beautiful <b>wgpu</b>, fast <b><b>WebTransport</b></b> protocol.
@@ -221,19 +221,19 @@ This is just prototype I've written on Christmas holidays, just to explore the i
 </div>
 </div>
 
-<div id="outline-container-orge25fb1f" class="outline-2">
-<h2 id="orge25fb1f"><span class="section-number-2">2.</span> Demo</h2>
+<div id="outline-container-org67fcd38" class="outline-2">
+<h2 id="org67fcd38"><span class="section-number-2">2.</span> Demo</h2>
 <div class="outline-text-2" id="text-2">
 
-<div id="org6c1184c" class="figure">
+<div id="org760d555" class="figure">
 <p><img src="./levo.gif" alt="levo.gif" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org52c5516" class="outline-2">
-<h2 id="org52c5516"><span class="section-number-2">3.</span> Levo high-level architecture</h2>
+<div id="outline-container-org43ee78a" class="outline-2">
+<h2 id="org43ee78a"><span class="section-number-2">3.</span> Levo high-level architecture</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Client application can be written in different languages that compiles to wasm but Rust were chosen. To create wasm file that can be consumed later by <a href="https://github.com/bytecodealliance/wasmtime">wasmtime</a> runtime the steps from <a href="https://github.com/velostudio/levo/blob/main/client-app/readme.md">client-app/readme.md</a> should be taken. Client app can use rust std and any host (portal) functions. Interface of available host functions declared in <code>spec/host.wit</code> file:
@@ -323,8 +323,8 @@ This allows to run any client code without giving any security risk to the host 
 </div>
 </div>
 
-<div id="outline-container-orgf049d46" class="outline-2">
-<h2 id="orgf049d46"><span class="section-number-2">4.</span> The end (just a beginning)</h2>
+<div id="outline-container-org5026690" class="outline-2">
+<h2 id="org5026690"><span class="section-number-2">4.</span> The end (just a beginning)</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Imagine people can use <b>Rust</b>, <b>C</b>, <b>C++</b>, <b>Java</b>, <b>Go</b> to write client apps that can be easily distributed via HTTP3 and executed securely using <b>wasmtime</b> runtime, <b>bevy</b> is used as portal (a.k.a. browser) for easy access to <b>wgpu</b> functionalities. What a world it would be!
@@ -334,8 +334,7 @@ Imagine people can use <b>Rust</b>, <b>C</b>, <b>C++</b>, <b>Java</b>, <b>Go</b>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: StaffEngineer</p>
-<p class="date">Created: 2023-12-26 Tue 23:27</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+<p class="date">Created: 2023-12-26 Tue 23:30</p>
 </div>
 </body>
 </html>
