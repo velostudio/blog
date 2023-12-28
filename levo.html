@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-12-26 Tue 23:30 -->
+<!-- 2023-12-28 Thu 09:14 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Levo: web as it should be</title>
+<title>Levo (web: the good parts)</title>
 <meta name="author" content="StaffEngineer" />
 <meta name="generator" content="Org Mode" />
 <style>
@@ -197,43 +197,43 @@
 </head>
 <body>
 <div id="content" class="content">
-<h1 class="title">Levo: web as it should be</h1>
+<h1 class="title">Levo (web: the good parts)</h1>
 <div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org3f6e3fb">1. Preface</a></li>
-<li><a href="#org67fcd38">2. Demo</a></li>
-<li><a href="#org43ee78a">3. Levo high-level architecture</a></li>
-<li><a href="#org5026690">4. The end (just a beginning)</a></li>
+<li><a href="#orgcf4038d">1. Preface</a></li>
+<li><a href="#orgb12eaab">2. Demo</a></li>
+<li><a href="#org2daa21b">3. Levo high-level architecture</a></li>
+<li><a href="#orgce38622">4. The end (just a beginning)</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org3f6e3fb" class="outline-2">
-<h2 id="org3f6e3fb"><span class="section-number-2">1.</span> Preface</h2>
+<div id="outline-container-orgcf4038d" class="outline-2">
+<h2 id="orgcf4038d"><span class="section-number-2">1.</span> Preface</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-Imagine a parallel universe where there weren't any JavaScript but rather there were secure <b>WASM</b>, beautiful <b>wgpu</b>, fast <b><b>WebTransport</b></b> protocol.
-Imagine a browser written in <b><b>Bevy</b></b>, imagine everything written in secure and blazingly fast <b><b>Rust</b></b>. Let me introduce you to <a href="https://github.com/velostudio/levo">levo</a>. Levo is a browser (we call it portal), example server and example client app (a.k.a web-site). No, it's not production ready.
+Imagine a parallel universe where there weren't any JavaScript but rather there were secure <b>WASM</b>, beautiful <b>wgpu</b>, fast <b>WebTransport</b> protocol.
+Imagine a browser written in <b>Bevy</b>, imagine everything written in secure and blazingly fast <b>Rust</b>. Let me introduce you to <a href="https://github.com/velostudio/levo">levo</a>. Levo is a browser (we call it portal), example server and example client app (a.k.a web-site). No, it's not production ready.
 This is just prototype I've written on Christmas holidays, just to explore the idea.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org67fcd38" class="outline-2">
-<h2 id="org67fcd38"><span class="section-number-2">2.</span> Demo</h2>
+<div id="outline-container-orgb12eaab" class="outline-2">
+<h2 id="orgb12eaab"><span class="section-number-2">2.</span> Demo</h2>
 <div class="outline-text-2" id="text-2">
 
-<div id="org760d555" class="figure">
+<div id="org4482b97" class="figure">
 <p><img src="./levo.gif" alt="levo.gif" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org43ee78a" class="outline-2">
-<h2 id="org43ee78a"><span class="section-number-2">3.</span> Levo high-level architecture</h2>
+<div id="outline-container-org2daa21b" class="outline-2">
+<h2 id="org2daa21b"><span class="section-number-2">3.</span> Levo high-level architecture</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Client application can be written in different languages that compiles to wasm but Rust were chosen. To create wasm file that can be consumed later by <a href="https://github.com/bytecodealliance/wasmtime">wasmtime</a> runtime the steps from <a href="https://github.com/velostudio/levo/blob/main/client-app/readme.md">client-app/readme.md</a> should be taken. Client app can use rust std and any host (portal) functions. Interface of available host functions declared in <code>spec/host.wit</code> file:
@@ -304,11 +304,11 @@ config.wasm_component_model(<span style="color: #93a61a; font-weight: bold;">tru
 </div>
 
 <p>
-Then, it runs client's <b><b>setup</b></b> function once and <b><b>update</b></b> every frame. Since those functions can use any host functions declared in <b><b>wit</b></b> file the host app also provides implementation for those functions (e.g. if client calls <span class="underline">cubic-bezier-to</span> function - host will call corresponding <code>bevy_prototype_lyon</code> function to draw cubic bezier curve).
+Then, it runs client's <b>setup</b> function once and <b>update</b> every frame. Since those functions can use any host functions declared in <b>wit</b> file the host app also provides implementation for those functions (e.g. if client calls <span class="underline">cubic-bezier-to</span> function - host will call corresponding <code>bevy_prototype_lyon</code> function to draw cubic bezier curve).
 </p>
 
 <p>
-<code>wasmtime</code> uses <b><b>component model</b></b> and <b><b>wasi</b></b>:
+<code>wasmtime</code> uses <b>component model</b> and <b>wasi</b>:
 </p>
 
 <blockquote>
@@ -323,18 +323,18 @@ This allows to run any client code without giving any security risk to the host 
 </div>
 </div>
 
-<div id="outline-container-org5026690" class="outline-2">
-<h2 id="org5026690"><span class="section-number-2">4.</span> The end (just a beginning)</h2>
+<div id="outline-container-orgce38622" class="outline-2">
+<h2 id="orgce38622"><span class="section-number-2">4.</span> The end (just a beginning)</h2>
 <div class="outline-text-2" id="text-4">
 <p>
-Imagine people can use <b>Rust</b>, <b>C</b>, <b>C++</b>, <b>Java</b>, <b>Go</b> to write client apps that can be easily distributed via HTTP3 and executed securely using <b>wasmtime</b> runtime, <b>bevy</b> is used as portal (a.k.a. browser) for easy access to <b>wgpu</b> functionalities. What a world it would be!
+Imagine people can use <b>Rust</b>, <b>C</b>, <b>C++</b>, <b>Java</b>, <b>Go</b> (take a look at <a href="https://github.com/velostudio/levo/blob/main/go-client-app/my-component.go">my-component.go</a>) to write client apps that can be easily distributed via HTTP3 and executed securely using <b>wasmtime</b> runtime, <b>bevy</b> is used as portal (a.k.a. browser) for easy access to <b>wgpu</b> functionalities. What a world it would be!
 </p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: StaffEngineer</p>
-<p class="date">Created: 2023-12-26 Tue 23:30</p>
+<p class="date">Created: 2023-12-28 Thu 09:14</p>
 </div>
 </body>
 </html>
