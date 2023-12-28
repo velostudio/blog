@@ -6,7 +6,7 @@
 
 Imagine a parallel universe where there weren't any JavaScript but rather there were secure *WASM*, beautiful *wgpu*, fast *WebTransport* protocol.
 Imagine a browser written in *Bevy*, imagine everything written in secure and blazingly fast *Rust*. Let me introduce you to [[https://github.com/velostudio/levo][levo]]. Levo is a browser (we call it portal), example server and example client app (a.k.a web-site). No, it's not production ready.
-This is just prototype I've written on Christmas holidays, just to explore the idea.
+This is just prototype to explore the idea.
 
 * Demo
 
@@ -14,7 +14,7 @@ This is just prototype I've written on Christmas holidays, just to explore the i
 
 * Levo high-level architecture
 
-Client application can be written in different languages that compiles to wasm but Rust were chosen. To create wasm file that can be consumed later by [[https://github.com/bytecodealliance/wasmtime][wasmtime]] runtime the steps from [[https://github.com/velostudio/levo/blob/main/client-app/readme.md][client-app/readme.md]] should be taken. Client app can use rust std and any host (portal) functions. Interface of available host functions declared in ~spec/host.wit~ file:
+Client application can be written in different languages that compiles to wasm. To create wasm file that can be consumed later by [[https://github.com/bytecodealliance/wasmtime][wasmtime]] runtime the steps from [[https://github.com/velostudio/levo/blob/main/client-app/readme.md][client-app/readme.md]] should be taken. Client app can use rust std and any host (portal) functions. Interface of available host functions declared in ~spec/host.wit~ file:
 
 #+BEGIN_SRC wit
 package levo:portal;
@@ -41,11 +41,11 @@ world my-world {
 }
 #+END_SRC
 
-The client's output wasm file with embedded wit definitions is encoded using small ~brotli-encoder~ tools that uses ~brotli~ rust crate.
+The client's output wasm file with embedded wit definitions is encoded using small ~brotli-encoder~ tool that uses ~brotli~ rust crate.
 
 ~levo-server~ uses brotli encoded file and using ~webransport~ rust crate response to portal request with encoded wasm file. WebTransport protocol allows quick transfer of client app to the portal using UDP packets.
 
-~portal~ app is the meat of the project, it's written in ~Bevy~ that gives easy access to ~winit~ , ~wgpu~ and whole bunch of other awesome things. In current form it has just one text input field that accepts _host_ of the machine that runs levo-server. After entering _host_ and pressing Enter portal connects to the server, downloads encoded brotli wasm file, decodes it, initializes ~wasmtime~ runtime like so:
+~portal~ app is the meat of the project, it's written in ~Bevy~ that gives easy access to ~winit~ , ~wgpu~ and whole bunch of other awesome things. In current form it has just one text input field that accepts _URL_ of the machine that runs levo-server. After entering _URL_ and pressing Enter portal connects to the server, downloads encoded brotli wasm file, decodes it, initializes ~wasmtime~ runtime like so:
 
 #+BEGIN_SRC rust
     // Set up Wasmtime components
@@ -84,4 +84,4 @@ This allows to run any client code without giving any security risk to the host 
 
 * The end (just a beginning)
 
-Imagine people can use *Rust*, *C*, *C++*, *Java*, *Go* (take a look at [[https://github.com/velostudio/levo/blob/main/go-client-app/my-component.go][my-component.go]]) to write client apps that can be easily distributed via HTTP3 and executed securely using *wasmtime* runtime, *bevy* is used as portal (a.k.a. browser) for easy access to *wgpu* functionalities. What a world it would be!
+Imagine people can use *Rust*, *C*, *C++*, *Java*, *Go* (take a look at [[https://github.com/velostudio/levo/blob/main/go-client-app/my-component.go][my-component.go]]) to write client apps that can be easily distributed via HTTP3 and executed securely using *wasmtime* runtime, *bevy* is used as portal (a.k.a. browser). Next steps could be exposing low level API such as =wgpu= and =winit=. Giving guest apps such low level API will allow truly native desktop app experience that is distributed via URL. The best of both words all in one!
