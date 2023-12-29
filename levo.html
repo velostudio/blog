@@ -1,246 +1,128 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
-<!-- 2023-12-28 Thu 21:32 -->
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Levo (web: the good parts)</title>
-<meta name="author" content="StaffEngineer" />
-<meta name="generator" content="Org Mode" />
-<style>
-  #content { max-width: 60em; margin: auto; }
-  .title  { text-align: center;
-             margin-bottom: .2em; }
-  .subtitle { text-align: center;
-              font-size: medium;
-              font-weight: bold;
-              margin-top:0; }
-  .todo   { font-family: monospace; color: red; }
-  .done   { font-family: monospace; color: green; }
-  .priority { font-family: monospace; color: orange; }
-  .tag    { background-color: #eee; font-family: monospace;
-            padding: 2px; font-size: 80%; font-weight: normal; }
-  .timestamp { color: #bebebe; }
-  .timestamp-kwd { color: #5f9ea0; }
-  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
-  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
-  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
-  .underline { text-decoration: underline; }
-  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
-  p.verse { margin-left: 3%; }
-  pre {
-    border: 1px solid #e6e6e6;
-    border-radius: 3px;
-    background-color: #f2f2f2;
-    padding: 8pt;
-    font-family: monospace;
-    overflow: auto;
-    margin: 1.2em;
-  }
-  pre.src {
-    position: relative;
-    overflow: auto;
-  }
-  pre.src:before {
-    display: none;
-    position: absolute;
-    top: -8px;
-    right: 12px;
-    padding: 3px;
-    color: #555;
-    background-color: #f2f2f299;
-  }
-  pre.src:hover:before { display: inline; margin-top: 14px;}
-  /* Languages per Org manual */
-  pre.src-asymptote:before { content: 'Asymptote'; }
-  pre.src-awk:before { content: 'Awk'; }
-  pre.src-authinfo::before { content: 'Authinfo'; }
-  pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
-  pre.src-clojure:before { content: 'Clojure'; }
-  pre.src-css:before { content: 'CSS'; }
-  pre.src-D:before { content: 'D'; }
-  pre.src-ditaa:before { content: 'ditaa'; }
-  pre.src-dot:before { content: 'Graphviz'; }
-  pre.src-calc:before { content: 'Emacs Calc'; }
-  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
-  pre.src-fortran:before { content: 'Fortran'; }
-  pre.src-gnuplot:before { content: 'gnuplot'; }
-  pre.src-haskell:before { content: 'Haskell'; }
-  pre.src-hledger:before { content: 'hledger'; }
-  pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
-  pre.src-latex:before { content: 'LaTeX'; }
-  pre.src-ledger:before { content: 'Ledger'; }
-  pre.src-lisp:before { content: 'Lisp'; }
-  pre.src-lilypond:before { content: 'Lilypond'; }
-  pre.src-lua:before { content: 'Lua'; }
-  pre.src-matlab:before { content: 'MATLAB'; }
-  pre.src-mscgen:before { content: 'Mscgen'; }
-  pre.src-ocaml:before { content: 'Objective Caml'; }
-  pre.src-octave:before { content: 'Octave'; }
-  pre.src-org:before { content: 'Org mode'; }
-  pre.src-oz:before { content: 'OZ'; }
-  pre.src-plantuml:before { content: 'Plantuml'; }
-  pre.src-processing:before { content: 'Processing.js'; }
-  pre.src-python:before { content: 'Python'; }
-  pre.src-R:before { content: 'R'; }
-  pre.src-ruby:before { content: 'Ruby'; }
-  pre.src-sass:before { content: 'Sass'; }
-  pre.src-scheme:before { content: 'Scheme'; }
-  pre.src-screen:before { content: 'Gnu Screen'; }
-  pre.src-sed:before { content: 'Sed'; }
-  pre.src-sh:before { content: 'shell'; }
-  pre.src-sql:before { content: 'SQL'; }
-  pre.src-sqlite:before { content: 'SQLite'; }
-  /* additional languages in org.el's org-babel-load-languages alist */
-  pre.src-forth:before { content: 'Forth'; }
-  pre.src-io:before { content: 'IO'; }
-  pre.src-J:before { content: 'J'; }
-  pre.src-makefile:before { content: 'Makefile'; }
-  pre.src-maxima:before { content: 'Maxima'; }
-  pre.src-perl:before { content: 'Perl'; }
-  pre.src-picolisp:before { content: 'Pico Lisp'; }
-  pre.src-scala:before { content: 'Scala'; }
-  pre.src-shell:before { content: 'Shell Script'; }
-  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
-  /* additional language identifiers per "defun org-babel-execute"
-       in ob-*.el */
-  pre.src-cpp:before  { content: 'C++'; }
-  pre.src-abc:before  { content: 'ABC'; }
-  pre.src-coq:before  { content: 'Coq'; }
-  pre.src-groovy:before  { content: 'Groovy'; }
-  /* additional language identifiers from org-babel-shell-names in
-     ob-shell.el: ob-shell is the only babel language using a lambda to put
-     the execution function name together. */
-  pre.src-bash:before  { content: 'bash'; }
-  pre.src-csh:before  { content: 'csh'; }
-  pre.src-ash:before  { content: 'ash'; }
-  pre.src-dash:before  { content: 'dash'; }
-  pre.src-ksh:before  { content: 'ksh'; }
-  pre.src-mksh:before  { content: 'mksh'; }
-  pre.src-posh:before  { content: 'posh'; }
-  /* Additional Emacs modes also supported by the LaTeX listings package */
-  pre.src-ada:before { content: 'Ada'; }
-  pre.src-asm:before { content: 'Assembler'; }
-  pre.src-caml:before { content: 'Caml'; }
-  pre.src-delphi:before { content: 'Delphi'; }
-  pre.src-html:before { content: 'HTML'; }
-  pre.src-idl:before { content: 'IDL'; }
-  pre.src-mercury:before { content: 'Mercury'; }
-  pre.src-metapost:before { content: 'MetaPost'; }
-  pre.src-modula-2:before { content: 'Modula-2'; }
-  pre.src-pascal:before { content: 'Pascal'; }
-  pre.src-ps:before { content: 'PostScript'; }
-  pre.src-prolog:before { content: 'Prolog'; }
-  pre.src-simula:before { content: 'Simula'; }
-  pre.src-tcl:before { content: 'tcl'; }
-  pre.src-tex:before { content: 'TeX'; }
-  pre.src-plain-tex:before { content: 'Plain TeX'; }
-  pre.src-verilog:before { content: 'Verilog'; }
-  pre.src-vhdl:before { content: 'VHDL'; }
-  pre.src-xml:before { content: 'XML'; }
-  pre.src-nxml:before { content: 'XML'; }
-  /* add a generic configuration mode; LaTeX export needs an additional
-     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
-  pre.src-conf:before { content: 'Configuration File'; }
-
-  table { border-collapse:collapse; }
-  caption.t-above { caption-side: top; }
-  caption.t-bottom { caption-side: bottom; }
-  td, th { vertical-align:top;  }
-  th.org-right  { text-align: center;  }
-  th.org-left   { text-align: center;   }
-  th.org-center { text-align: center; }
-  td.org-right  { text-align: right;  }
-  td.org-left   { text-align: left;   }
-  td.org-center { text-align: center; }
-  dt { font-weight: bold; }
-  .footpara { display: inline; }
-  .footdef  { margin-bottom: 1em; }
-  .figure { padding: 1em; }
-  .figure p { text-align: center; }
-  .equation-container {
-    display: table;
-    text-align: center;
-    width: 100%;
-  }
-  .equation {
-    vertical-align: middle;
-  }
-  .equation-label {
-    display: table-cell;
-    text-align: right;
-    vertical-align: middle;
-  }
-  .inlinetask {
-    padding: 10px;
-    border: 2px solid gray;
-    margin: 10px;
-    background: #ffffcc;
-  }
-  #org-div-home-and-up
-   { text-align: right; font-size: 70%; white-space: nowrap; }
-  textarea { overflow-x: auto; }
-  .linenr { font-size: smaller }
-  .code-highlighted { background-color: #ffff00; }
-  .org-info-js_info-navigation { border-style: none; }
-  #org-info-js_console-label
-    { font-size: 10px; font-weight: bold; white-space: nowrap; }
-  .org-info-js_search-highlight
-    { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { }
-</style>
-<link rel="stylesheet" type="text/css" href="https://gongzhitaao.org/orgcss/org.css"/>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="StaffEngineer" />
+  <meta name="author" content="tigregalis" />
+  <title>Levo (web: the good parts)</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="css.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
-<div id="content" class="content">
+<header id="title-block-header">
 <h1 class="title">Levo (web: the good parts)</h1>
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents" role="doc-toc">
-<ul>
-<li><a href="#org9582fb7">1. Preface</a></li>
-<li><a href="#org1095198">2. Demo</a></li>
-<li><a href="#org391b7b0">3. Levo high-level architecture</a></li>
-<li><a href="#orgf0d0a35">4. The end (just a beginning)</a></li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org9582fb7" class="outline-2">
-<h2 id="org9582fb7"><span class="section-number-2">1.</span> Preface</h2>
-<div class="outline-text-2" id="text-1">
-<p>
-Imagine a parallel universe where there weren't any JavaScript but rather there were secure <b>WASM</b>, beautiful <b>wgpu</b>, fast <b>WebTransport</b> protocol.
-Imagine a browser written in <b>Bevy</b>, imagine everything written in secure and blazingly fast <b>Rust</b>. Let me introduce you to <a href="https://github.com/velostudio/levo">levo</a>. Levo is a browser (we call it portal), example server and example client app (a.k.a web-site). No, it's not production ready.
-This is just prototype to explore the idea.
-</p>
-</div>
-</div>
-
-<div id="outline-container-org1095198" class="outline-2">
-<h2 id="org1095198"><span class="section-number-2">2.</span> Demo</h2>
-<div class="outline-text-2" id="text-2">
-
-<div id="org29570a1" class="figure">
-<p><img src="./levo.gif" alt="levo.gif" />
-</p>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org391b7b0" class="outline-2">
-<h2 id="org391b7b0"><span class="section-number-2">3.</span> Levo high-level architecture</h2>
-<div class="outline-text-2" id="text-3">
-<p>
-Client application can be written in different languages that compiles to wasm. To create wasm file that can be consumed later by <a href="https://github.com/bytecodealliance/wasmtime">wasmtime</a> runtime the steps from <a href="https://github.com/velostudio/levo/blob/main/client-app/readme.md">client-app/readme.md</a> should be taken. Client app can use rust std and any host (portal) functions. Interface of available host functions declared in <code>spec/host.wit</code> file:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-wit">package levo:portal;
+<p class="author"><a
+href="https://github.com/StaffEngineer">StaffEngineer</a></p>
+<p class="author"><a
+href="https://github.com/tigregalis">tigregalis</a></p>
+</header>
+<h2 id="preface">Preface</h2>
+<p>Imagine a parallel universe where there weren’t any JavaScript but
+rather there were secure <strong>WASM</strong>, beautiful
+<strong>wgpu</strong>, fast <strong>WebTransport</strong> protocol.
+Imagine a browser written in <strong>Bevy</strong>, imagine everything
+written in secure and blazingly fast <strong>Rust</strong>. Let me
+introduce you to <a href="https://github.com/velostudio/levo">levo</a>.
+Levo is a browser (we call it portal), example server and example client
+app (a.k.a web-site). No, it’s not production ready. This is just
+prototype to explore the idea.</p>
+<h2 id="demo">Demo</h2>
+<p><img src="./levo.gif" /></p>
+<h2 id="levo-high-level-architecture">Levo high-level architecture</h2>
+<p>Client application can be written in different languages that
+compiles to wasm. To create wasm file that can be consumed later by <a
+href="https://github.com/bytecodealliance/wasmtime">wasmtime</a> runtime
+the steps from <a
+href="https://github.com/velostudio/levo/blob/main/client-app/readme.md">client-app/readme.md</a>
+should be taken. Client app can use rust std and any host (portal)
+functions. Interface of available host functions declared in
+<code>spec/host.wit</code> file:</p>
+<pre class="wit"><code>package levo:portal;
 
 interface my-imports {
     print: func(msg: string);
@@ -261,80 +143,72 @@ world my-world {
   export update: func();
 
   export setup: func();
-}
-</pre>
-</div>
-
-<p>
-The client's output wasm file with embedded wit definitions is encoded using small <code>brotli-encoder</code> tool that uses <code>brotli</code> rust crate.
-</p>
-
-<p>
-<code>levo-server</code> uses brotli encoded file and using <code>webransport</code> rust crate response to portal request with encoded wasm file. WebTransport protocol allows quick transfer of client app to the portal using UDP packets.
-</p>
-
-<p>
-<code>portal</code> app is the meat of the project, it's written in <code>Bevy</code> that gives easy access to <code>winit</code> , <code>wgpu</code> and whole bunch of other awesome things. In current form it has just one text input field that accepts <span class="underline">URL</span> of the machine that runs levo-server. After entering <span class="underline">URL</span> and pressing Enter portal connects to the server, downloads encoded brotli wasm file, decodes it, initializes <code>wasmtime</code> runtime like so:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-rust"><span style="color: #5B6268; font-style: italic;">// </span><span style="color: #5B6268; font-style: italic;">Set up Wasmtime components</span>
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #93a61a; font-weight: bold;">mut</span> <span style="color: #8d9fa1;">config</span> = <span style="color: #c49619; font-style: italic;">Config</span>::new();
-config.wasm_component_model(<span style="color: #93a61a; font-weight: bold;">true</span>).async_support(<span style="color: #93a61a; font-weight: bold;">false</span>);
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #8d9fa1;">engine</span> = <span style="color: #c49619; font-style: italic;">Engine</span>::new(<span style="color: #8d9fa1; background-color: #002732;">&amp;</span>config)<span style="color: #3c98e0; font-weight: bold; font-style: italic;">?</span>;
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #8d9fa1;">component</span> = <span style="color: #c49619; font-style: italic;">Component</span>::new(<span style="color: #8d9fa1; background-color: #002732;">&amp;</span>engine, decoded_input)<span style="color: #3c98e0; font-weight: bold; font-style: italic;">?</span>;
-
-<span style="color: #5B6268; font-style: italic;">// </span><span style="color: #5B6268; font-style: italic;">Set up Wasmtime linker</span>
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #93a61a; font-weight: bold;">mut</span> <span style="color: #8d9fa1;">linker</span> = <span style="color: #c49619; font-style: italic;">Linker</span>::new(<span style="color: #8d9fa1; background-color: #002732;">&amp;</span>engine);
-<span style="color: #3c98e0; font-weight: bold;">sync</span>::add_to_linker(<span style="color: #8d9fa1; background-color: #002732;">&amp;</span><span style="color: #93a61a; font-weight: bold;">mut</span> linker)<span style="color: #3c98e0; font-weight: bold; font-style: italic;">?</span>;
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #8d9fa1;">table</span> = <span style="color: #c49619; font-style: italic;">Table</span>::new();
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #8d9fa1;">wasi</span> = <span style="color: #c49619; font-style: italic;">WasiCtxBuilder</span>::new().build();
-<span style="color: #c49619; font-style: italic;">MyWorld</span>::add_to_linker(<span style="color: #8d9fa1; background-color: #002732;">&amp;</span><span style="color: #93a61a; font-weight: bold;">mut</span> linker, |<span style="color: #8d9fa1;">state</span>: <span style="color: #8d9fa1; background-color: #002732;">&amp;</span><span style="color: #93a61a; font-weight: bold;">mut</span> <span style="color: #c49619; font-style: italic;">MyCtx</span>| state)<span style="color: #3c98e0; font-weight: bold; font-style: italic;">?</span>;
-<span style="color: #5B6268; font-style: italic;">// </span><span style="color: #5B6268; font-style: italic;">Set up Wasmtime store</span>
-<span style="color: #93a61a; font-weight: bold;">let</span> <span style="color: #93a61a; font-weight: bold;">mut</span> <span style="color: #8d9fa1;">store</span> = <span style="color: #c49619; font-style: italic;">Store</span>::new(
-    <span style="color: #8d9fa1; background-color: #002732;">&amp;</span>engine,
-    <span style="color: #c49619; font-style: italic;">MyCtx</span> {
-        table,
-        wasi,
-        <span style="color: #8d9fa1;">channel</span>: cc,
-    },
-);
-<span style="color: #93a61a; font-weight: bold;">let</span> (bindings, _) = <span style="color: #c49619; font-style: italic;">MyWorld</span>::instantiate(<span style="color: #8d9fa1; background-color: #002732;">&amp;</span><span style="color: #93a61a; font-weight: bold;">mut</span> store, <span style="color: #8d9fa1; background-color: #002732;">&amp;</span>component, <span style="color: #8d9fa1; background-color: #002732;">&amp;</span>linker)<span style="color: #3c98e0; font-weight: bold; font-style: italic;">?</span>;
-</pre>
-</div>
-
-<p>
-Then, it runs client's <b>setup</b> function once and <b>update</b> every frame. Since those functions can use any host functions declared in <b>wit</b> file the host app also provides implementation for those functions (e.g. if client calls <span class="underline">cubic-bezier-to</span> function - host will call corresponding <code>bevy_prototype_lyon</code> function to draw cubic bezier curve).
-</p>
-
-<p>
-<code>wasmtime</code> uses <b>component model</b> and <b>wasi</b>:
-</p>
-
+}</code></pre>
+<p>The client’s output wasm file with embedded wit definitions is
+encoded using small <code>brotli-encoder</code> tool that uses
+<code>brotli</code> rust crate.</p>
+<p><code>levo-server</code> uses brotli encoded file and using
+<code>webransport</code> rust crate response to portal request with
+encoded wasm file. WebTransport protocol allows quick transfer of client
+app to the portal using UDP packets.</p>
+<p><code>portal</code> app is the meat of the project, it’s written in
+<code>Bevy</code> that gives easy access to <code>winit</code> ,
+<code>wgpu</code> and whole bunch of other awesome things. In current
+form it has just one text input field that accepts <u>URL</u> of the
+machine that runs levo-server. After entering <u>URL</u> and pressing
+Enter portal connects to the server, downloads encoded brotli wasm file,
+decodes it, initializes <code>wasmtime</code> runtime like so:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime components</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> config <span class="op">=</span> <span class="pp">Config::</span>new()<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span>wasm_component_model(<span class="cn">true</span>)<span class="op">.</span>async_support(<span class="cn">false</span>)<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> engine <span class="op">=</span> <span class="pp">Engine::</span>new(<span class="op">&amp;</span>config)<span class="op">?;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> component <span class="op">=</span> <span class="pp">Component::</span>new(<span class="op">&amp;</span>engine<span class="op">,</span> decoded_input)<span class="op">?;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime linker</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> linker <span class="op">=</span> <span class="pp">Linker::</span>new(<span class="op">&amp;</span>engine)<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="pp">sync::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker)<span class="op">?;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> table <span class="op">=</span> <span class="pp">Table::</span>new()<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> wasi <span class="op">=</span> <span class="pp">WasiCtxBuilder::</span>new()<span class="op">.</span>build()<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="pp">MyWorld::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker<span class="op">,</span> <span class="op">|</span>state<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> MyCtx<span class="op">|</span> state)<span class="op">?;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime store</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> store <span class="op">=</span> <span class="pp">Store::</span>new(</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span>engine<span class="op">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    MyCtx <span class="op">{</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        table<span class="op">,</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        wasi<span class="op">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        channel<span class="op">:</span> cc<span class="op">,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> (bindings<span class="op">,</span> _) <span class="op">=</span> <span class="pp">MyWorld::</span>instantiate(<span class="op">&amp;</span><span class="kw">mut</span> store<span class="op">,</span> <span class="op">&amp;</span>component<span class="op">,</span> <span class="op">&amp;</span>linker)<span class="op">?;</span></span></code></pre></div>
+<p>Then, it runs client's <strong>setup</strong> function once and
+<strong>update</strong> every frame. Since those functions can use any
+host functions declared in <strong>wit</strong> file the host app also
+provides implementation for those functions (e.g. if client calls
+<u>cubic-bezier-to</u> function - host will call corresponding
+<code>bevy_prototype_lyon</code> function to draw cubic bezier
+curve).</p>
+<p><code class="verbatim">wasmtime</code> uses <strong>component
+model</strong> and <strong>wasi</strong>:</p>
 <blockquote>
-<p>
-WASI is designed with capability-based security principles, using the facilities provided by the Wasm component model. All access to external resources is provided by capabilities.
-</p>
+<p>WASI is designed with capability-based security principles, using the
+facilities provided by the Wasm component model. All access to external
+resources is provided by capabilities.</p>
 </blockquote>
-
-<p>
-This allows to run any client code without giving any security risk to the host machine.
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgf0d0a35" class="outline-2">
-<h2 id="orgf0d0a35"><span class="section-number-2">4.</span> The end (just a beginning)</h2>
-<div class="outline-text-2" id="text-4">
-<p>
-Imagine people can use <b>Rust</b>, <b>C</b>, <b>C++</b>, <b>Java</b>, <b>Go</b> (take a look at <a href="https://github.com/velostudio/levo/blob/main/go-client-app/my-component.go">my-component.go</a>) to write client apps that can be easily distributed via HTTP3 and executed securely using <b>wasmtime</b> runtime, <b>bevy</b> is used as portal (a.k.a. browser). Next steps could be exposing low level API such as <code>wgpu</code> and <code>winit</code>. Giving guest apps such low level API will allow truly native desktop app experience that is distributed via URL. The best of both words all in one!
-</p>
-</div>
-</div>
-</div>
-<div id="postamble" class="status">
-<p class="author">Author: StaffEngineer</p>
-<p class="date">Created: 2023-12-28 Thu 21:32</p>
-</div>
+<p>This allows to run any client code without giving any security risk
+to the host machine.</p>
+<h2 id="the-end-just-a-beginning">The end (just a beginning)</h2>
+<p>Imagine people can use <strong>Rust</strong>, <strong>C</strong>,
+<strong>C++</strong>, <strong>Java</strong>, <strong>Go</strong> (take a
+look at <a
+href="https://github.com/velostudio/levo/blob/main/go-client-app/my-component.go">my-component.go</a>)
+to write client apps that can be easily distributed via HTTP3 and
+executed securely using <strong>wasmtime</strong> runtime,
+<strong>bevy</strong> is used as portal (a.k.a. browser). Next steps
+could be exposing low level API such as <code
+class="verbatim">wgpu</code> and <code class="verbatim">winit</code>.
+Giving guest apps such low level API will allow truly native desktop app
+experience that is distributed via URL. The best of both words all in
+one!</p>
 </body>
 </html>
