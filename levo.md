@@ -1,5 +1,5 @@
 ---
-title:  'Levo (web: the good parts)'
+title:  'Levo: the good parts'
 author:
 - '[StaffEngineer](https://github.com/StaffEngineer)'
 - '[tigregalis](https://github.com/tigregalis)'
