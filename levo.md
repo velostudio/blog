@@ -117,7 +117,7 @@ the host machine.
 
 Imagine people can use **Rust**, **C**, **C++**, **Java**, **Go** (take
 a look at
-[my-component.go](https://github.com/velostudio/levo/blob/main/go-client-app/my-component.go))
+[my-component.go](https://github.com/velostudio/levo/blob/main/clients/go-client-app/src/my-component.go))
 to write client apps that can be easily distributed via HTTP3 and
 executed securely using **wasmtime** runtime, **bevy** is used as portal
 (a.k.a. browser). Next steps could be exposing low level API such as
