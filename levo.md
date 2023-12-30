@@ -115,9 +115,9 @@ the host machine.
 
 ## The end (just a beginning)
 
-Imagine people can use **Rust**, **C** 
-(take a look at [my-component.c](https://github.com/velostudio/levo/blob/main/clients/c-client-app/src/my-component.c)), 
-**C++**, **Java**, **Go** (take a look at [my-component.go](https://github.com/velostudio/levo/blob/main/clients/go-client-app/src/my-component.go)) 
+Imagine people can use **Rust** ([lib.rs](https://github.com/velostudio/levo/blob/main/clients/rust-client-app/src/lib.rs)), **C** 
+([my-component.c](https://github.com/velostudio/levo/blob/main/clients/c-client-app/src/my-component.c)), 
+**C++**, **Java**, **Go** ([my-component.go](https://github.com/velostudio/levo/blob/main/clients/go-client-app/src/my-component.go)) 
 to write client apps that can be easily distributed via HTTP3 and
 executed securely using **wasmtime** runtime, **bevy** is used as portal
 (a.k.a. browser). Next steps could be exposing low level API such as
