@@ -13,7 +13,7 @@ We've been there before, sort of. Flash, Java Applets, Silverlight. But those te
 
 All over the internet, you hear a common refrain from developers in opposite camps; those forced to develop for the Web, and those who refuse to: "Why is web development so damn complicated?"" Well, what's the alternative? I think that endless argument is perfectly illustrated by this interaction.
 
-[![The web is too complicated and the answer is native applications?](tweet.png)](https://twitter.com/tsoding/status/1731311044637970446)
+[![The web is too complicated and the answer is native applications?](https://github.com/velostudio/blog/blob/main/tweet.PNG)](https://twitter.com/tsoding/status/1731311044637970446)
 
 Are native apps really the way to go? What about shareability, universality, cross-platform compatibility, ease of access and ease of distribution? The hyperlink was the killer feature of the early Web, for a very good reason.
 
