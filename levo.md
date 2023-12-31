@@ -172,9 +172,12 @@ a cubic bezier curve to the screen.
 > external resources is provided by capabilities.
 
 This allows you to run client code without risking the security of
-the host machine. Note that this is not yet implemented in the current portal implementation.
+the host machine. For example the host app can allow only specific amount of memory for the guest app. Let's try to load rust guest app giving maximum 1MB a linear memory to grow.
+Since it needs more than 1MB on startup it simply won't be loaded by the host app, but 2MB is enough:
 
-**TODO: Demonstrate at least one opt-in or opt-out capability**
+<video src="https://velostudio.github.io/blog/demo1.mp4" controls="controls"></video>
+
+Press play to see the video. Portal controls max "guest" memory size via `max_memory_mb` URL query.
 
 ## Standing on the shoulders of giants
 
