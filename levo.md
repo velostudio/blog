@@ -37,9 +37,7 @@ Portals will run your guest applications, written in any language, to allow a tr
 
 ## Show, don't tell
 
-**TODO: Record and show running guest applications written in different languages.**
-
-https://velostudio.github.io/blog/demo1.mp4
+<video src="https://velostudio.github.io/blog/demo1.mp4" controls="controls"></video>
 
 Press play to see the video. A "guest" application, being "hosted" by the portal.
 
