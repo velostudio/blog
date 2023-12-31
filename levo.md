@@ -120,7 +120,8 @@ wasm-tools component new ../../target/wasm32-wasi/release/rust_client_app.wasm \
 You compress that artifact using `brotli` (which can be done using the included `brotli-encoder` tool).
 
 ```bash
-cargo run --package brotli-encoder --release -- my-component.wasm "../../levo-server/public/rust.wasm"
+cargo run --package brotli-encoder --release \
+  -- my-component.wasm "../../levo-server/public/rust.wasm"
 ```
 
 Serve the compressed artifact via `WebTransport` (which can be done using the included `levo-server` server). The `WebTransport` protocol allows quick transfer of client app to the portal using UDP
