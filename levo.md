@@ -39,7 +39,9 @@ Portals will run your guest applications, written in any language, to allow a tr
 
 **TODO: Record and show running guest applications written in different languages.**
 
-![A "guest" application, being "hosted" by the portal, levo](./levo.gif)
+https://velostudio.github.io/blog/demo1.mp4
+
+Press play to see the video. A "guest" application, being "hosted" by the portal.
 
 ## The view from above
 
@@ -66,17 +68,39 @@ You write your client apps in your chosen language that compiles to WASM (specif
 package levo:portal;
 
 interface my-imports {
-    // partially omitted for brevity
-    print: func(msg: string);
-    fill-style: func(color: string);
-    fill-rect: func(x: float32, y: float32, width: float32, height: float32);
-    begin-path: func();
-    move-to: func(x: float32, y: float32);
-    cubic-bezier-to: func(x1: float32, y1: float32, x2: float32, y2: float32, x3: float32, y3: float32);
-    arc: func(x: float32, y: float32, radius: float32, sweep-angle: float32, x-rotation: float32);
-    close-path: func();
-    fill: func();
-    label: func(text: string, x: float32, y: float32, size: float32, color: string);
+  ...
+  variant mouse-button {
+    // The left mouse button.
+    left,
+    // The right mouse button.
+    right,
+    // The middle mouse button.
+    middle,
+    // Another mouse button with the associated number.
+    other(u16),
+  }
+
+  record position {
+    x: float32,
+    y: float32,
+  }
+
+  record size {
+    width: float32,
+    height: float32,
+  }
+
+  label: func(text: string, x: float32, y: float32, size: float32, color: string);
+  link: func(url: string, text: string, x: float32, y: float32, size: float32);
+  delta-seconds: func() -> float32;
+  key-just-pressed: func(key: key-code) -> bool;
+  key-pressed: func(key: key-code) -> bool;
+  key-just-released: func(key: key-code) -> bool;
+  mouse-button-just-pressed: func(btn: mouse-button) -> bool;
+  mouse-button-just-released: func(btn: mouse-button) -> bool;
+  mouse-button-pressed: func(btn: mouse-button) -> bool;
+  cursor-position: func() -> option<position>;
+  canvas-size: func() -> size; 
 }
 
 world my-world {
@@ -90,11 +114,16 @@ world my-world {
 
 Once you've compiled your app to `wasm32-wasi`, you can use `wasm-tools` to adapt your wasm binary to the WebAssembly Component Model.
 
-**TODO: show example shell commands**
+```bash
+wasm-tools component new ../../target/wasm32-wasi/release/rust_client_app.wasm \
+  -o my-component.wasm --adapt ../wasi_snapshot_preview1.reactor.wasm
+```
 
 You compress that artifact using `brotli` (which can be done using the included `brotli-encoder` tool).
 
-**TODO: show example shell commands**
+```bash
+cargo run --package brotli-encoder --release -- my-component.wasm "../../levo-server/public/rust.wasm"
+```
 
 Serve the compressed artifact via `WebTransport` (which can be done using the included `levo-server` server). The `WebTransport` protocol allows quick transfer of client app to the portal using UDP
 packets.
@@ -168,7 +197,7 @@ Our next steps:
 
 - Flesh out the high level API, both in the spec and in the portal implementation - being built on Bevy and exposing an immediate mode style API it's already in a state where you could implement 2D HTML-canvas style games - we could look to other projects for inspiration, such as macroquad, raylib, and others
 
-- Break the web-native assumptions of an app served over the Web - as option, we could link a specific binary directly at startup - or we could look to Tauri for inspiration for embedding these applications - or we could make use of Bevy's Asset system for a cleaner development experience
+- Break the web-native assumptions of an app served over the Web - as option, we could link a specific binary directly at startup to open N windows of app - or we could look to Tauri for inspiration for embedding these applications - or we could make use of Bevy's Asset system for a cleaner development experience
 
 - Investigate and implement a low level API to provide access to, or mirror, `wgpu`, `winit`, and so on, both in the spec and in the portal implementation - this would enable `fn main()` style apps where the guest app owns the loop - Bevy provides access to these ecosystems
 

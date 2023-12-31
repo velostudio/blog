@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="StaffEngineer" />
   <meta name="author" content="tigregalis" />
-  <title>Levo: the good parts</title>
+  <title>Web: The Good Parts</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -95,46 +95,126 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Levo: the good parts</h1>
+<h1 class="title">Web: The Good Parts</h1>
 <p class="author"><a
 href="https://github.com/StaffEngineer">StaffEngineer</a></p>
 <p class="author"><a
 href="https://github.com/tigregalis">tigregalis</a></p>
 </header>
-<h2 id="preface">Preface</h2>
-<p>Imagine a parallel universe where there weren’t any JavaScript but
-rather there were secure <strong>WASM</strong>, beautiful
-<strong>wgpu</strong>, fast <strong>WebTransport</strong> protocol.
-Imagine a browser written in <strong>Bevy</strong>, imagine everything
-written in secure and blazingly fast <strong>Rust</strong>. Let me
-introduce you to <a href="https://github.com/velostudio/levo">levo</a>.
-Levo is a browser (we call it portal), example server and example client
-app (a.k.a web-site). No, it’s not production ready. This is just
-prototype to explore the idea.</p>
-<h2 id="demo">Demo</h2>
-<p><img src="./levo.gif" /></p>
-<h2 id="levo-high-level-architecture">Levo high-level architecture</h2>
-<p>Client application can be written in different languages that
-compiles to wasm. To create wasm file that can be consumed later by <a
-href="https://github.com/bytecodealliance/wasmtime">wasmtime</a> runtime
-the steps from <a
-href="https://github.com/velostudio/levo/blob/main/client-app/readme.md">client-app/readme.md</a>
-should be taken. Client app can use rust std and any host (portal)
-functions. Interface of available host functions declared in
-<code>spec/host.wit</code> file:</p>
+<h2 id="in-the-beginning">In the beginning</h2>
+<p>If you could peer through a portal into a parallel universe, you
+might see an alternative timeline where the Web evolved in a very
+different way. No HTML, no CSS, and no JavaScript: a Web built from the
+ground up for <strong>applications</strong>, not <em>documents</em>.</p>
+<p>We’ve been there before, sort of. Flash, Java Applets, Silverlight.
+But those technologies had some very serious shortcomings. (Let’s not
+get into that.)</p>
+<p>All over the internet, you hear a common refrain from developers in
+opposite camps; those forced to develop for the Web, and those who
+refuse to: “Why is web development so damn complicated?”” Well, what’s
+the alternative? I think that endless argument is perfectly illustrated
+by this interaction.</p>
+<p><a href="https://twitter.com/tsoding/status/1731311044637970446"><img
+src="tweet.png"
+alt="The web is too complicated and the answer is native applications?" /></a></p>
+<p>Are native apps really the way to go? What about shareability,
+universality, cross-platform compatibility, ease of access and ease of
+distribution? The hyperlink was the killer feature of the early Web, for
+a very good reason.</p>
+<p>The fact is, the Web won. And let’s be real, there is a subset of the
+Web platform that <em>is</em> actually good.</p>
+<h2 id="born-of-the-web-will-be-its-killer">Born of the Web, will be its
+killer</h2>
+<p>As the modern Web has evolved towards rich, interactive and
+highly-connected experiences (“applications”) rather than simple
+websites (“documents”), the technology has evolved to meet those new
+demands.</p>
+<p>Enter WebAssembly: a way to run secure sandboxed code at near-native
+speeds in the browser and <strong>beyond</strong>. But this is not an
+introduction to WASM, you can read up on that in your own time. You’re
+here with us to explore the alternative universe of a Web built for
+applications.</p>
+<p>Imagine running native-like interactive graphical applications that
+are sandboxed, with security through capabilities.</p>
+<p>Allow us to introduce you to <a
+href="https://github.com/velostudio/levo">levo</a>, which is not a
+<em>browser</em>, but a <strong>portal</strong>.</p>
+<p><em>Full disclaimer: This was built over the holiday break, and in
+its current state it’s more of a proof of concept than a fully-fledged
+platform that will ultimately dethrone the browser as the undisputed
+ruler of the Web.</em></p>
+<h2 id="the-elevator-pitch">The elevator pitch</h2>
+<p>Portals will run your guest applications, written in any language, to
+allow a truly native desktop app experience that is shareable via
+URL.</p>
+<h2 id="show-dont-tell">Show, don’t tell</h2>
+<p><strong>TODO: Record and show running guest applications written in
+different languages.</strong></p>
+<p>https://velostudio.github.io/blog/demo1.mp4</p>
+<p>Press play to see the video. A “guest” application, being “hosted” by
+the portal.</p>
+<h2 id="the-view-from-above">The view from above</h2>
+<p>If you look at the <a
+href="https://github.com/velostudio/levo">levo</a> repo, you’ll find a
+few directories:</p>
+<pre><code>levo/               - you are here
+    spec/           - this contains the host.wit interface, which is the real heart of the project
+    portal/         - this contains the portal (host) implementation
+    clients/        - this contains the same guest application built in 3 languages: Rust, Go and C
+    brotli-encoder  - this is a simple command line tool to brotli-encode the wasm
+    levo-server/    - this is a simple server that serves the brotli-encoded wasm client applications from the file system</code></pre>
+<p>The current structure and all of the dependencies in use is
+<em>aspirational</em>. We’re using cutting-edge technologies like WASM,
+WIT, and WASI, and we’ve structured this based on the assumption of
+guest applications being served over a modern and future network. We’re
+very much building on top of quicksand here, but we know these
+technologies are the future of the Web, however they ultimately
+compose.</p>
+<h2 id="a-walkthrough-okay-do-tell">A walkthrough (okay, do tell)</h2>
+<p>The portal currently expects brotli-encoded <code>wasm32-wasi</code>
+binaries that meets the relevant <code>spec/host.wit</code> contract and
+is served over URL.</p>
+<p>You write your client apps in your chosen language that compiles to
+WASM (specifically, <code>wasm32-wasi</code>), and you export a
+<code>setup()</code> function and an <code>update()</code> function, as
+defined in <code>spec/host.wit</code>. From within your app, you can
+access the host functions declared:</p>
 <pre class="wit"><code>package levo:portal;
 
 interface my-imports {
-    print: func(msg: string);
-    fill-style: func(color: string);
-    fill-rect: func(x: float32, y: float32, width: float32, height: float32);
-    begin-path: func();
-    move-to: func(x: float32, y: float32);
-    cubic-bezier-to: func(x1: float32, y1: float32, x2: float32, y2: float32, x3: float32, y3: float32);
-    arc: func(x: float32, y: float32, radius: float32, sweep-angle: float32, x-rotation: float32);
-    close-path: func();
-    fill: func();
-    label: func(text: string, x: float32, y: float32, size: float32, color: string);
+  ...
+  variant mouse-button {
+    // The left mouse button.
+    left,
+    // The right mouse button.
+    right,
+    // The middle mouse button.
+    middle,
+    // Another mouse button with the associated number.
+    other(u16),
+  }
+
+  record position {
+    x: float32,
+    y: float32,
+  }
+
+  record size {
+    width: float32,
+    height: float32,
+  }
+
+  label: func(text: string, x: float32, y: float32, size: float32, color: string);
+  link: func(url: string, text: string, x: float32, y: float32, size: float32);
+  delta-seconds: func() -&gt; float32;
+  key-just-pressed: func(key: key-code) -&gt; bool;
+  key-pressed: func(key: key-code) -&gt; bool;
+  key-just-released: func(key: key-code) -&gt; bool;
+  mouse-button-just-pressed: func(btn: mouse-button) -&gt; bool;
+  mouse-button-just-released: func(btn: mouse-button) -&gt; bool;
+  mouse-button-pressed: func(btn: mouse-button) -&gt; bool;
+  cursor-position: func() -&gt; option&lt;position&gt;;
+  canvas-size: func() -&gt; size; 
 }
 
 world my-world {
@@ -144,50 +224,60 @@ world my-world {
 
   export setup: func();
 }</code></pre>
-<p>The client’s output wasm file with embedded wit definitions is
-encoded using small <code>brotli-encoder</code> tool that uses
-<code>brotli</code> rust crate.</p>
-<p><code>levo-server</code> uses brotli encoded file and using
-<code>webransport</code> rust crate response to portal request with
-encoded wasm file. WebTransport protocol allows quick transfer of client
-app to the portal using UDP packets.</p>
-<p><code>portal</code> app is the meat of the project, it’s written in
-<code>Bevy</code> that gives easy access to <code>winit</code> ,
-<code>wgpu</code> and whole bunch of other awesome things. In current
-form it has just one text input field that accepts <u>URL</u> of the
-machine that runs levo-server. After entering <u>URL</u> and pressing
-Enter portal connects to the server, downloads encoded brotli wasm file,
-decodes it, initializes <code>wasmtime</code> runtime like so:</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime components</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> config <span class="op">=</span> <span class="pp">Config::</span>new()<span class="op">;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span>wasm_component_model(<span class="cn">true</span>)<span class="op">.</span>async_support(<span class="cn">false</span>)<span class="op">;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> engine <span class="op">=</span> <span class="pp">Engine::</span>new(<span class="op">&amp;</span>config)<span class="op">?;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> component <span class="op">=</span> <span class="pp">Component::</span>new(<span class="op">&amp;</span>engine<span class="op">,</span> decoded_input)<span class="op">?;</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime linker</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> linker <span class="op">=</span> <span class="pp">Linker::</span>new(<span class="op">&amp;</span>engine)<span class="op">;</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="pp">sync::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker)<span class="op">?;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> table <span class="op">=</span> <span class="pp">Table::</span>new()<span class="op">;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> wasi <span class="op">=</span> <span class="pp">WasiCtxBuilder::</span>new()<span class="op">.</span>build()<span class="op">;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="pp">MyWorld::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker<span class="op">,</span> <span class="op">|</span>state<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> MyCtx<span class="op">|</span> state)<span class="op">?;</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime store</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> store <span class="op">=</span> <span class="pp">Store::</span>new(</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span>engine<span class="op">,</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    MyCtx <span class="op">{</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        table<span class="op">,</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        wasi<span class="op">,</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        channel<span class="op">:</span> cc<span class="op">,</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> (bindings<span class="op">,</span> _) <span class="op">=</span> <span class="pp">MyWorld::</span>instantiate(<span class="op">&amp;</span><span class="kw">mut</span> store<span class="op">,</span> <span class="op">&amp;</span>component<span class="op">,</span> <span class="op">&amp;</span>linker)<span class="op">?;</span></span></code></pre></div>
-<p>Then, it runs client's <strong>setup</strong> function once and
-<strong>update</strong> every frame. Since those functions can use any
-host functions declared in <strong>wit</strong> file the host app also
-provides implementation for those functions (e.g. if client calls
-<u>cubic-bezier-to</u> function - host will call corresponding
-<code>bevy_prototype_lyon</code> function to draw cubic bezier
-curve).</p>
+<p>Once you’ve compiled your app to <code>wasm32-wasi</code>, you can
+use <code>wasm-tools</code> to adapt your wasm binary to the WebAssembly
+Component Model.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wasm-tools</span> component new ../../target/wasm32-wasi/release/rust_client_app.wasm <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-o</span> my-component.wasm <span class="at">--adapt</span> ../wasi_snapshot_preview1.reactor.wasm</span></code></pre></div>
+<p>You compress that artifact using <code>brotli</code> (which can be
+done using the included <code>brotli-encoder</code> tool).</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--package</span> brotli-encoder <span class="at">--release</span> <span class="at">--</span> my-component.wasm <span class="st">&quot;../../levo-server/public/rust.wasm&quot;</span></span></code></pre></div>
+<p>Serve the compressed artifact via <code>WebTransport</code> (which
+can be done using the included <code>levo-server</code> server). The
+<code>WebTransport</code> protocol allows quick transfer of client app
+to the portal using UDP packets.</p>
+<p>The <code>portal</code> app is the meat of the project. It’s written
+in <code>Bevy</code>, which gives us easy access to <code>winit</code>,
+<code>wgpu</code> and a host of other amazing integrations with the Rust
+ecosystem. At least, that’s the promise. In its current form, it just
+has one text input field that accepts a <u>URL</u> to the WASM
+resource.</p>
+<p>After entering the <u>URL</u> and pressing Enter, the portal connects
+to the server, downloads the brotli-encoded wasm file, decodes it, and
+initializes the <code>wasmtime</code> runtime like so:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode rust"><code class="sourceCode rust"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime components</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> config <span class="op">=</span> <span class="pp">Config::</span>new()<span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span>wasm_component_model(<span class="cn">true</span>)<span class="op">.</span>async_support(<span class="cn">false</span>)<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> engine <span class="op">=</span> <span class="pp">Engine::</span>new(<span class="op">&amp;</span>config)<span class="op">?;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> component <span class="op">=</span> <span class="pp">Component::</span>new(<span class="op">&amp;</span>engine<span class="op">,</span> decoded_input)<span class="op">?;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime linker</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> linker <span class="op">=</span> <span class="pp">Linker::</span>new(<span class="op">&amp;</span>engine)<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="pp">sync::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker)<span class="op">?;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> table <span class="op">=</span> <span class="pp">Table::</span>new()<span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> wasi <span class="op">=</span> <span class="pp">WasiCtxBuilder::</span>new()<span class="op">.</span>build()<span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">MyWorld::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker<span class="op">,</span> <span class="op">|</span>state<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> MyCtx<span class="op">|</span> state)<span class="op">?;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime store</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> store <span class="op">=</span> <span class="pp">Store::</span>new(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span>engine<span class="op">,</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    MyCtx <span class="op">{</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        table<span class="op">,</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        wasi<span class="op">,</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        channel<span class="op">:</span> cc<span class="op">,</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> (bindings<span class="op">,</span> _) <span class="op">=</span> <span class="pp">MyWorld::</span>instantiate(<span class="op">&amp;</span><span class="kw">mut</span> store<span class="op">,</span> <span class="op">&amp;</span>component<span class="op">,</span> <span class="op">&amp;</span>linker)<span class="op">?;</span></span></code></pre></div>
+<p>Then, it runs the client-provided <strong>setup</strong> function
+once, and its <strong>update</strong> function every frame. During those
+functions, the client can use any host functions declared in the
+<code>spec/host.wit</code> file. The host app (the portal) provides
+implementations for these interfaces: (e.g. if client calls the
+<u>cubic-bezier-to</u> function - the host will call the corresponding
+<code>bevy_prototype_lyon</code> function to draw a cubic bezier curve
+to the screen.</p>
 <p><code class="verbatim">wasmtime</code> uses <strong>component
 model</strong> and <strong>wasi</strong>:</p>
 <blockquote>
@@ -195,22 +285,87 @@ model</strong> and <strong>wasi</strong>:</p>
 facilities provided by the Wasm component model. All access to external
 resources is provided by capabilities.</p>
 </blockquote>
-<p>This allows to run any client code without giving any security risk
-to the host machine.</p>
-<h2 id="the-end-just-a-beginning">The end (just a beginning)</h2>
-<p>Imagine people can use <strong>Rust</strong> (<a
+<p>This allows you to run client code without risking the security of
+the host machine. Note that this is not yet implemented in the current
+portal implementation.</p>
+<p><strong>TODO: Demonstrate at least one opt-in or opt-out
+capability</strong></p>
+<h2 id="standing-on-the-shoulders-of-giants">Standing on the shoulders
+of giants</h2>
+<p>levo is currently built on top of:</p>
+<ul>
+<li>WIT and the WebAssembly Component Model: webassembly interface
+types, using *.wit files to define the contracts between the host portal
+and guest applications</li>
+<li>wasm-tools and wit-bindgen: tooling for the above</li>
+<li>wasmtime: an embeddable WASM runtime</li>
+<li>bevy: a game engine that builds on top of the incredible Rust
+ecosystem to handle everything from input to windowing to audio to GPU
+to rendering and more</li>
+</ul>
+<h2 id="a-dream-of-spring">A dream of spring</h2>
+<p>We want to be able to make and meet this promise: write a native app
+in your chosen language that is secure and massively distributable.</p>
+<p><code>spec/host.wit</code> is the heart of the project, and we want
+to explore the design of the portal. There is a tension between
+providing a high level API (the start of which we have now) and a low
+level API for more granular and powerful control of the host machine. We
+want to explore both, however, the high level API is easier to
+develop.</p>
+<p>Our next steps:</p>
+<ul>
+<li><p>Flesh out the high level API, both in the spec and in the portal
+implementation - being built on Bevy and exposing an immediate mode
+style API it’s already in a state where you could implement 2D
+HTML-canvas style games - we could look to other projects for
+inspiration, such as macroquad, raylib, and others</p></li>
+<li><p>Break the web-native assumptions of an app served over the Web -
+as option, we could link a specific binary directly at startup to open N
+windows of app - or we could look to Tauri for inspiration for embedding
+these applications - or we could make use of Bevy’s Asset system for a
+cleaner development experience</p></li>
+<li><p>Investigate and implement a low level API to provide access to,
+or mirror, <code>wgpu</code>, <code>winit</code>, and so on, both in the
+spec and in the portal implementation - this would enable
+<code>fn main()</code> style apps where the guest app owns the loop -
+Bevy provides access to these ecosystems</p>
+<ul>
+<li>The eventual goal here would be to make a “portal” be a platform
+target for guest applications from multiple languages</li>
+<li>Imagine, for instance, compiling a Bevy game to run directly on the
+portal without changing much or any user code</li>
+</ul></li>
+<li><p>Build out the “capabilities” architecture in the portal
+implementation; we will look to Deno and Tauri here for inspiration. For
+example, being able to provide restrict access to resources such as</p>
+<ul>
+<li>file system (see deno / tauri)</li>
+<li>stdin / stdout (see deno / tauri)</li>
+<li>network (see deno / tauri)</li>
+<li>system time</li>
+<li>memory budget</li>
+<li>“CPU” budget</li>
+<li>GPU / hardware acceleration</li>
+<li>cryptography / random number generation</li>
+<li>window management</li>
+<li>audio</li>
+<li>the URL of the page (route)</li>
+</ul></li>
+</ul>
+<h2 id="the-end-the-beginning">The end (the beginning)</h2>
+<p>Let’s take a step back and peer through the looking glass into a
+possible future.</p>
+<p>You choose to use <strong>Rust</strong> (<a
 href="https://github.com/velostudio/levo/blob/main/clients/rust-client-app/src/lib.rs">lib.rs</a>),
 <strong>C</strong> (<a
 href="https://github.com/velostudio/levo/blob/main/clients/c-client-app/src/my-component.c">my-component.c</a>),
 <strong>C++</strong>, <strong>Java</strong>, <strong>Go</strong> (<a
 href="https://github.com/velostudio/levo/blob/main/clients/go-client-app/src/my-component.go">my-component.go</a>)
-to write client apps that can be easily distributed via HTTP3 and
-executed securely using <strong>wasmtime</strong> runtime,
-<strong>bevy</strong> is used as portal (a.k.a. browser). Next steps
-could be exposing low level API such as <code
-class="verbatim">wgpu</code> and <code class="verbatim">winit</code>.
-Giving guest apps such low level API will allow truly native desktop app
-experience that is distributed via URL. The best of both words all in
-one!</p>
+or some unknown future language to write native-like app experiences
+that can be quickly and easily shared, distributed via HTTP3 and
+executed securely.</p>
+<h2 id="the-once-and-future-king">The once and future king</h2>
+<p>Perhaps one day the browsers will implement something like Portals
+natively. Until then, we’ll just have to build it ourselves.</p>
 </body>
 </html>
