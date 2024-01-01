@@ -1,6 +1,6 @@
 # velostudio blog
 
-* https://github.com/velostudio/levo
+* https://velostudio.github.io/blog/levo.html
 
 To re-generate html file run:
 
