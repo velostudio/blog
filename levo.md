@@ -125,7 +125,7 @@ world my-world {
 
 You write your client apps in your chosen language that compiles to WASM (specifically, `wasm32-wasi`), and you export a `setup()` function and an `update()` function, as defined in the exports of `spec/host.wit`.
 
-```
+```rust
 impl Guest for MyWorld {
     fn setup() {
         let size = canvas_size();
