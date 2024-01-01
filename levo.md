@@ -41,26 +41,39 @@ Portals will run your guest applications, written in any language, to allow a tr
 
 Press play to see the video. A "guest" application, being "hosted" by the portal.
 
-## The view from above
+## Okay, do tell
 
 If you look at the [levo](https://github.com/velostudio/levo) repo, you'll find a few directories:
 
 ```
 levo/               - you are here
-    spec/           - this contains the host.wit interface, which is the real heart of the project
-    portal/         - this contains the portal (host) implementation
-    clients/        - this contains the same guest application built in 3 languages: Rust, Go and C
-    brotli-encoder  - this is a simple command line tool to brotli-encode the wasm
-    levo-server/    - this is a simple server that serves the brotli-encoded wasm client applications from the file system
+
+    spec/           - this contains the host.wit
+                      interface, which is the
+                      real heart of the project
+
+    portal/         - this contains the portal
+                      (host) implementation
+
+    clients/        - this contains the same
+                      guest application built in
+                      3 languages: Rust, Go and C
+
+    brotli-encoder/ - this is a simple command
+                      line tool to brotli-encode
+                      the wasm
+
+    levo-server/    - this is a simple server that
+                      serves the brotli-encoded
+                      wasm client applications
+                      from the file system
 ```
 
-The current structure and all of the dependencies in use is _aspirational_. We're using cutting-edge technologies like WASM, WIT, and WASI, and we've structured this based on the assumption of guest applications being served over a modern and future network. We're very much building on top of quicksand here, but we know these technologies are the future of the Web, however they ultimately compose.
-
-## A walkthrough (okay, do tell)
+The current structure is _aspirational_. We're using cutting-edge technologies like WASM, WIT, and WASI, and we've structured this based on the assumption of guest applications being served over a modern and future network (but more on that later). We're very much building on top of quicksand here, but we know these technologies are the future of the Web, however they ultimately compose.
 
 The portal currently expects brotli-encoded `wasm32-wasi` binaries that meets the relevant `spec/host.wit` contract and is served over URL.
 
-You write your client apps in your chosen language that compiles to WASM (specifically, `wasm32-wasi`), and you export a `setup()` function and an `update()` function, as defined in `spec/host.wit`. From within your app, you can access the host functions declared:
+From within your app, you can access the host functions declared in `spec/host.wit` as imports, such as `canvas-size`:
 
 ```wit
 package levo:portal;
@@ -98,7 +111,7 @@ interface my-imports {
   mouse-button-just-released: func(btn: mouse-button) -> bool;
   mouse-button-pressed: func(btn: mouse-button) -> bool;
   cursor-position: func() -> option<position>;
-  canvas-size: func() -> size; 
+  canvas-size: func() -> size;
 }
 
 world my-world {
@@ -107,6 +120,21 @@ world my-world {
   export update: func();
 
   export setup: func();
+}
+```
+
+You write your client apps in your chosen language that compiles to WASM (specifically, `wasm32-wasi`), and you export a `setup()` function and an `update()` function, as defined in the exports of `spec/host.wit`.
+
+```
+impl Guest for MyWorld {
+    fn setup() {
+        let size = canvas_size();
+        let width = size.width;
+        let height = size.height;
+        let message = format!("Hello from Rust! ({width}x{height})");
+        print(message);
+    }
+    fn update() {}
 }
 ```
 
@@ -175,7 +203,7 @@ a cubic bezier curve to the screen.
 This allows you to run client code without risking the security of
 the host machine. Note that this is not yet implemented in the current portal implementation.
 
-## Standing on the shoulders of giants
+## On the shoulders of giants
 
 levo is currently built on top of:
 
@@ -184,7 +212,7 @@ levo is currently built on top of:
 - wasmtime: an embeddable WASM runtime
 - bevy: a game engine that builds on top of the incredible Rust ecosystem to handle everything from input to windowing to audio to GPU to rendering and more
 
-## A dream of spring
+## A dream of Spring
 
 We want to be able to make and meet this promise: write a native app in your chosen language that is secure and massively distributable.
 
