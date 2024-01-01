@@ -161,32 +161,43 @@ URL.</p>
 </video>
 <p>Press play to see the video. A “guest” application, being “hosted” by
 the portal.</p>
-<h2 id="the-view-from-above">The view from above</h2>
+<h2 id="okay-do-tell">Okay, do tell</h2>
 <p>If you look at the <a
 href="https://github.com/velostudio/levo">levo</a> repo, you’ll find a
 few directories:</p>
 <pre><code>levo/               - you are here
-    spec/           - this contains the host.wit interface, which is the real heart of the project
-    portal/         - this contains the portal (host) implementation
-    clients/        - this contains the same guest application built in 3 languages: Rust, Go and C
-    brotli-encoder  - this is a simple command line tool to brotli-encode the wasm
-    levo-server/    - this is a simple server that serves the brotli-encoded wasm client applications from the file system</code></pre>
-<p>The current structure and all of the dependencies in use is
-<em>aspirational</em>. We’re using cutting-edge technologies like WASM,
-WIT, and WASI, and we’ve structured this based on the assumption of
-guest applications being served over a modern and future network. We’re
-very much building on top of quicksand here, but we know these
-technologies are the future of the Web, however they ultimately
-compose.</p>
-<h2 id="a-walkthrough-okay-do-tell">A walkthrough (okay, do tell)</h2>
+
+    spec/           - this contains the host.wit
+                      interface, which is the
+                      real heart of the project
+
+    portal/         - this contains the portal
+                      (host) implementation
+
+    clients/        - this contains the same
+                      guest application built in
+                      3 languages: Rust, Go and C
+
+    brotli-encoder/ - this is a simple command
+                      line tool to brotli-encode
+                      the wasm
+
+    levo-server/    - this is a simple server that
+                      serves the brotli-encoded
+                      wasm client applications
+                      from the file system</code></pre>
+<p>The current structure is <em>aspirational</em>. We’re using
+cutting-edge technologies like WASM, WIT, and WASI, and we’ve structured
+this based on the assumption of guest applications being served over a
+modern and future network (but more on that later). We’re very much
+building on top of quicksand here, but we know these technologies are
+the future of the Web, however they ultimately compose.</p>
 <p>The portal currently expects brotli-encoded <code>wasm32-wasi</code>
 binaries that meets the relevant <code>spec/host.wit</code> contract and
 is served over URL.</p>
-<p>You write your client apps in your chosen language that compiles to
-WASM (specifically, <code>wasm32-wasi</code>), and you export a
-<code>setup()</code> function and an <code>update()</code> function, as
-defined in <code>spec/host.wit</code>. From within your app, you can
-access the host functions declared:</p>
+<p>From within your app, you can access the host functions declared in
+<code>spec/host.wit</code> as imports, such as
+<code>canvas-size</code>:</p>
 <pre class="wit"><code>package levo:portal;
 
 interface my-imports {
@@ -222,7 +233,7 @@ interface my-imports {
   mouse-button-just-released: func(btn: mouse-button) -&gt; bool;
   mouse-button-pressed: func(btn: mouse-button) -&gt; bool;
   cursor-position: func() -&gt; option&lt;position&gt;;
-  canvas-size: func() -&gt; size; 
+  canvas-size: func() -&gt; size;
 }
 
 world my-world {
@@ -232,17 +243,32 @@ world my-world {
 
   export setup: func();
 }</code></pre>
+<p>You write your client apps in your chosen language that compiles to
+WASM (specifically, <code>wasm32-wasi</code>), and you export a
+<code>setup()</code> function and an <code>update()</code> function, as
+defined in the exports of <code>spec/host.wit</code>.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode rust"><code class="sourceCode rust"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">impl</span> Guest <span class="cf">for</span> MyWorld <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> setup() <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> size <span class="op">=</span> canvas_size()<span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> width <span class="op">=</span> size<span class="op">.</span>width<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> height <span class="op">=</span> size<span class="op">.</span>height<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> message <span class="op">=</span> <span class="pp">format!</span>(<span class="st">&quot;Hello from Rust! ({width}x{height})&quot;</span>)<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        print(message)<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> update() <span class="op">{}</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Once you’ve compiled your app to <code>wasm32-wasi</code>, you can
 use <code>wasm-tools</code> to adapt your wasm binary to the WebAssembly
 Component Model.</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wasm-tools</span> component new ../../target/wasm32-wasi/release/rust_client_app.wasm <span class="dt">\</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-o</span> my-component.wasm <span class="at">--adapt</span> ../wasi_snapshot_preview1.reactor.wasm</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">wasm-tools</span> component new ../../target/wasm32-wasi/release/rust_client_app.wasm <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-o</span> my-component.wasm <span class="at">--adapt</span> ../wasi_snapshot_preview1.reactor.wasm</span></code></pre></div>
 <p>You compress that artifact using <code>brotli</code> (which can be
 done using the included <code>brotli-encoder</code> tool).</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--package</span> brotli-encoder <span class="at">--release</span> <span class="dt">\</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--</span> my-component.wasm <span class="st">&quot;../../levo-server/public/rust.wasm&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--package</span> brotli-encoder <span class="at">--release</span> <span class="dt">\</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--</span> my-component.wasm <span class="st">&quot;../../levo-server/public/rust.wasm&quot;</span></span></code></pre></div>
 <p>Serve the compressed artifact via <code>WebTransport</code> (which
 can be done using the included <code>levo-server</code> server). The
 <code>WebTransport</code> protocol allows quick transfer of client app
@@ -256,29 +282,29 @@ resource.</p>
 <p>After entering the <u>URL</u> and pressing Enter, the portal connects
 to the server, downloads the brotli-encoded wasm file, decodes it, and
 initializes the <code>wasmtime</code> runtime like so:</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode rust"><code class="sourceCode rust"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime components</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> config <span class="op">=</span> <span class="pp">Config::</span>new()<span class="op">;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span>wasm_component_model(<span class="cn">true</span>)<span class="op">.</span>async_support(<span class="cn">false</span>)<span class="op">;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> engine <span class="op">=</span> <span class="pp">Engine::</span>new(<span class="op">&amp;</span>config)<span class="op">?;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> component <span class="op">=</span> <span class="pp">Component::</span>new(<span class="op">&amp;</span>engine<span class="op">,</span> decoded_input)<span class="op">?;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime linker</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> linker <span class="op">=</span> <span class="pp">Linker::</span>new(<span class="op">&amp;</span>engine)<span class="op">;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="pp">sync::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker)<span class="op">?;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> table <span class="op">=</span> <span class="pp">Table::</span>new()<span class="op">;</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> wasi <span class="op">=</span> <span class="pp">WasiCtxBuilder::</span>new()<span class="op">.</span>build()<span class="op">;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">MyWorld::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker<span class="op">,</span> <span class="op">|</span>state<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> MyCtx<span class="op">|</span> state)<span class="op">?;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime store</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> store <span class="op">=</span> <span class="pp">Store::</span>new(</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span>engine<span class="op">,</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    MyCtx <span class="op">{</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        table<span class="op">,</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        wasi<span class="op">,</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        channel<span class="op">:</span> cc<span class="op">,</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> (bindings<span class="op">,</span> _) <span class="op">=</span> <span class="pp">MyWorld::</span>instantiate(<span class="op">&amp;</span><span class="kw">mut</span> store<span class="op">,</span> <span class="op">&amp;</span>component<span class="op">,</span> <span class="op">&amp;</span>linker)<span class="op">?;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode rust"><code class="sourceCode rust"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime components</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> config <span class="op">=</span> <span class="pp">Config::</span>new()<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>config<span class="op">.</span>wasm_component_model(<span class="cn">true</span>)<span class="op">.</span>async_support(<span class="cn">false</span>)<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> engine <span class="op">=</span> <span class="pp">Engine::</span>new(<span class="op">&amp;</span>config)<span class="op">?;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> component <span class="op">=</span> <span class="pp">Component::</span>new(<span class="op">&amp;</span>engine<span class="op">,</span> decoded_input)<span class="op">?;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime linker</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> linker <span class="op">=</span> <span class="pp">Linker::</span>new(<span class="op">&amp;</span>engine)<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="pp">sync::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker)<span class="op">?;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> table <span class="op">=</span> <span class="pp">Table::</span>new()<span class="op">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> wasi <span class="op">=</span> <span class="pp">WasiCtxBuilder::</span>new()<span class="op">.</span>build()<span class="op">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="pp">MyWorld::</span>add_to_linker(<span class="op">&amp;</span><span class="kw">mut</span> linker<span class="op">,</span> <span class="op">|</span>state<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> MyCtx<span class="op">|</span> state)<span class="op">?;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">// Set up Wasmtime store</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> store <span class="op">=</span> <span class="pp">Store::</span>new(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span>engine<span class="op">,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    MyCtx <span class="op">{</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        table<span class="op">,</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        wasi<span class="op">,</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        channel<span class="op">:</span> cc<span class="op">,</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> (bindings<span class="op">,</span> _) <span class="op">=</span> <span class="pp">MyWorld::</span>instantiate(<span class="op">&amp;</span><span class="kw">mut</span> store<span class="op">,</span> <span class="op">&amp;</span>component<span class="op">,</span> <span class="op">&amp;</span>linker)<span class="op">?;</span></span></code></pre></div>
 <p>Then, it runs the client-provided <strong>setup</strong> function
 once, and its <strong>update</strong> function every frame. During those
 functions, the client can use any host functions declared in the
@@ -297,8 +323,7 @@ resources is provided by capabilities.</p>
 <p>This allows you to run client code without risking the security of
 the host machine. Note that this is not yet implemented in the current
 portal implementation.</p>
-<h2 id="standing-on-the-shoulders-of-giants">Standing on the shoulders
-of giants</h2>
+<h2 id="on-the-shoulders-of-giants">On the shoulders of giants</h2>
 <p>levo is currently built on top of:</p>
 <ul>
 <li>WIT and the WebAssembly Component Model: webassembly interface
@@ -310,7 +335,7 @@ and guest applications</li>
 ecosystem to handle everything from input to windowing to audio to GPU
 to rendering and more</li>
 </ul>
-<h2 id="a-dream-of-spring">A dream of spring</h2>
+<h2 id="a-dream-of-spring">A dream of Spring</h2>
 <p>We want to be able to make and meet this promise: write a native app
 in your chosen language that is secure and massively distributable.</p>
 <p><code>spec/host.wit</code> is the heart of the project, and we want
