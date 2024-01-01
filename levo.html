@@ -232,7 +232,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="
 <p>You compress that artifact using <code>brotli</code> (which can be
 done using the included <code>brotli-encoder</code> tool).</p>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--package</span> brotli-encoder <span class="at">--release</span> <span class="at">--</span> my-component.wasm <span class="st">&quot;../../levo-server/public/rust.wasm&quot;</span></span></code></pre></div>
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--package</span> brotli-encoder <span class="at">--release</span> <span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--</span> my-component.wasm <span class="st">&quot;../../levo-server/public/rust.wasm&quot;</span></span></code></pre></div>
 <p>Serve the compressed artifact via <code>WebTransport</code> (which
 can be done using the included <code>levo-server</code> server). The
 <code>WebTransport</code> protocol allows quick transfer of client app
@@ -285,15 +286,8 @@ facilities provided by the Wasm component model. All access to external
 resources is provided by capabilities.</p>
 </blockquote>
 <p>This allows you to run client code without risking the security of
-the host machine. For example the host app can allow only specific
-amount of memory for the guest app. Let’s try to load rust guest app
-giving maximum 1MB a linear memory to grow. Since it needs more than 1MB
-on startup it simply won’t be loaded by the host app, but 2MB is
-enough:</p>
-<video src="https://velostudio.github.io/blog/demo2.mp4" controls="controls">
-</video>
-<p>Press play to see the video. Portal controls max “guest” memory size
-via <code>max_memory_mb</code> URL query.</p>
+the host machine. Note that this is not yet implemented in the current
+portal implementation.</p>
 <h2 id="standing-on-the-shoulders-of-giants">Standing on the shoulders
 of giants</h2>
 <p>levo is currently built on top of:</p>
