@@ -321,8 +321,30 @@ facilities provided by the Wasm component model. All access to external
 resources is provided by capabilities.</p>
 </blockquote>
 <p>This allows you to run client code without risking the security of
-the host machine. Note that this is not yet implemented in the current
-portal implementation.</p>
+the host machine. Note that capability-based features are barely
+implemented on portal as for now.</p>
+<p>One example is to allow a guest app to read from one directory
+(public directory). Take a look at <a
+href="https://github.com/velostudio/levo/tree/main/clients/rust-test-read-file">rust-test-read-file</a>.
+Portal accepts <code>--allow-read</code> command-line argument to the
+folder that allowed to be read by a guest app. Imagine that portal was
+run with this option pointing to <code>public</code> directory then on a
+guest side:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode rs"><code class="sourceCode rust"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>       <span class="kw">let</span> <span class="cn">Ok</span>(data1) <span class="op">=</span> <span class="pp">levo::portal::my_imports::</span>read_file(<span class="st">&quot;hello.txt&quot;</span>) <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>            print(<span class="st">&quot;Failed to read public hello.txt&quot;</span>)<span class="op">;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        print(<span class="op">&amp;</span><span class="dt">String</span><span class="pp">::</span>from_utf8_lossy(<span class="op">&amp;</span>data1))<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> <span class="cn">Ok</span>(data2) <span class="op">=</span> <span class="pp">levo::portal::my_imports::</span>read_file(<span class="st">&quot;../private/hello.txt&quot;</span>) <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            print(<span class="st">&quot;Failed to read private hello.txt&quot;</span>)<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        print(<span class="op">&amp;</span><span class="dt">String</span><span class="pp">::</span>from_utf8_lossy(<span class="op">&amp;</span>data2))<span class="op">;</span></span></code></pre></div>
+<p><code>data1</code> will be printed successfully containing
+<code>public/hello.txt</code> file content (if relative path is provided
+it’s relative to the allowed directory path). However
+<code>../private/hello.txt</code> content won’t be read by a client
+since it’s not allowed by portal app.</p>
 <h2 id="on-the-shoulders-of-giants">On the shoulders of giants</h2>
 <p>levo is currently built on top of:</p>
 <ul>

@@ -201,7 +201,24 @@ a cubic bezier curve to the screen.
 > external resources is provided by capabilities.
 
 This allows you to run client code without risking the security of
-the host machine. Note that this is not yet implemented in the current portal implementation.
+the host machine. Note that capability-based features are barely implemented on portal as for now.
+
+One example is to allow a guest app to read from one directory (public directory). Take a look at [rust-test-read-file](https://github.com/velostudio/levo/tree/main/clients/rust-test-read-file). Portal accepts `--allow-read` command-line argument to the folder that allowed to be read by a guest app. Imagine that portal was run with this option pointing to `public` directory then on a guest side:
+
+```rs
+       let Ok(data1) = levo::portal::my_imports::read_file("hello.txt") else {
+            print("Failed to read public hello.txt");
+            return;
+        };
+        print(&String::from_utf8_lossy(&data1));
+        let Ok(data2) = levo::portal::my_imports::read_file("../private/hello.txt") else {
+            print("Failed to read private hello.txt");
+            return;
+        };
+        print(&String::from_utf8_lossy(&data2));
+```
+
+`data1` will be printed successfully containing `public/hello.txt` file content (if relative path is provided it's relative to the allowed directory path). However `../private/hello.txt` content won't be read by a client since it's not allowed by portal app.
 
 ## On the shoulders of giants
 
