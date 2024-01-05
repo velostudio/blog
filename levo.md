@@ -204,7 +204,7 @@ levo is currently built on top of:
 - WIT and the WebAssembly Component Model: webassembly interface types, using `*.wit` files to define the contracts between the host portal and guest client applications
 - `wasm-tools` and `wit-bindgen`: tooling that means we can make use of the above
 - `WASI`: the ability to interact with the system securely, which means client apps can make use of their existing standard libraries
-- `[wasmtime](https://wasmtime.dev/)`: an embeddable WASM runtime with support for WASI and the component model
+- [wasmtime](https://wasmtime.dev/): an embeddable WASM runtime with support for WASI and the component model
 - `bevy`: a delightful game engine that builds on top of the incredible Rust ecosystem to handle everything from input to windowing to audio to GPU to rendering and much more
 
 ## The view from 30,000 feet
@@ -243,7 +243,7 @@ The current structure is _aspirational_. We're using cutting-edge technologies l
 
 The `portal` app is the meat of the project, and is the first prototype implementation of a "portal".
 
-It's built with `[Bevy](https://bevyengine.org/)`,
+It's built with [Bevy](https://bevyengine.org/),
 which will give us easy access to `winit`, `wgpu` and
 a host of other amazing projects in the Rust ecosystem,
 parts of which we plan to expose through capabilities.
