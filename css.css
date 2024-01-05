@@ -217,3 +217,7 @@ pre,
 code {
   background-color: #fafafa;
 }
+
+strong {
+  font-weight: bold;
+}
