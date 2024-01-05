@@ -195,7 +195,7 @@ Run the portal
 cargo run --release --package portal
 ```
 
-and navigate to the location of the client app wasm file using the portal's address bar `localhost/rust.wasm`.
+and navigate to the location of the client app wasm file using the portal's address bar `http://localhost:8080/rust.wasm`.
 
 ## On the shoulders of giants
 
