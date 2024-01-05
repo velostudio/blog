@@ -348,7 +348,7 @@ print(&String::from_utf8_lossy(&secret));
 ```
 
 If `--allow-read` is omitted, neither of the files will be read.  
-If `--allow-read="./public"`, the contents of `./public/hello.txt`, is printed successfully.
+If `--allow-read="./public"`, the contents of `./public/hello.txt` is printed successfully.
 
 ## A dream of Spring
 
