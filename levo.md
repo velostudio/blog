@@ -185,11 +185,8 @@ Finally, serve the compressed artifact (which can be done using the included `le
 
 ```bash
 cd levo-server
-cargo run --release
+SERVER_CONFIG_FILE=./config.toml cargo r --release
 # serves files in the levo-server/public directory
-
-# or compile with a different directory
-LEVO_SERVER_ROOT=path/to/root/ cargo run --release
 ```
 
 Run the portal
@@ -207,7 +204,7 @@ levo is currently built on top of:
 - WIT and the WebAssembly Component Model: webassembly interface types, using `*.wit` files to define the contracts between the host portal and guest client applications
 - `wasm-tools` and `wit-bindgen`: tooling that means we can make use of the above
 - `WASI`: the ability to interact with the system securely, which means client apps can make use of their existing standard libraries
-- `wasmtime`: an embeddable WASM runtime with support for WASI and the component model
+- `[wasmtime](https://wasmtime.dev/)`: an embeddable WASM runtime with support for WASI and the component model
 - `bevy`: a delightful game engine that builds on top of the incredible Rust ecosystem to handle everything from input to windowing to audio to GPU to rendering and much more
 
 ## The view from 30,000 feet
@@ -246,7 +243,7 @@ The current structure is _aspirational_. We're using cutting-edge technologies l
 
 The `portal` app is the meat of the project, and is the first prototype implementation of a "portal".
 
-It's built with `Bevy`,
+It's built with `[Bevy](https://bevyengine.org/)`,
 which will give us easy access to `winit`, `wgpu` and
 a host of other amazing projects in the Rust ecosystem,
 parts of which we plan to expose through capabilities.
@@ -350,9 +347,8 @@ let Ok(secret) = levo::portal::my_imports::read_file("../private/secret.txt") el
 print(&String::from_utf8_lossy(&secret));
 ```
 
-If `--allow-read` is omitted, neither of the files will be read.
-If `--allow-read="./public"`,
-`hello`, the contents of `./public/hello.txt`, is printed successfully.
+If `--allow-read` is omitted, neither of the files will be read.  
+If `--allow-read="./public"`, the contents of `./public/hello.txt`, is printed successfully.
 
 ## A dream of Spring
 

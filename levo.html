@@ -7,6 +7,7 @@
   <meta name="author" content="StaffEngineer" />
   <meta name="author" content="tigregalis" />
   <title>Web: The Good Parts</title>
+  <link rel="icon" type="image/x-icon" href="./levo.ico">
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -93,6 +94,15 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S5B97YYXF4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-S5B97YYXF4');
+</script>
 <body>
 <header id="title-block-header">
 <h1 class="title">Web: The Good Parts</h1>
@@ -289,11 +299,8 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="
 included <code>levo-server</code> static file server).</p>
 <div class="sourceCode" id="cb9"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> levo-server</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--release</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># serves files in the levo-server/public directory</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># or compile with a different directory</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="va">LEVO_SERVER_ROOT</span><span class="op">=</span>path/to/root/ <span class="ex">cargo</span> run <span class="at">--release</span></span></code></pre></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">SERVER_CONFIG_FILE</span><span class="op">=</span>./config.toml <span class="ex">cargo</span> r <span class="at">--release</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># serves files in the levo-server/public directory</span></span></code></pre></div>
 <p>Run the portal</p>
 <div class="sourceCode" id="cb10"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> run <span class="at">--release</span> <span class="at">--package</span> portal</span></code></pre></div>
@@ -310,8 +317,8 @@ means we can make use of the above</li>
 <li><code>WASI</code>: the ability to interact with the system securely,
 which means client apps can make use of their existing standard
 libraries</li>
-<li><code>wasmtime</code>: an embeddable WASM runtime with support for
-WASI and the component model</li>
+<li><code>[wasmtime](https://wasmtime.dev/)</code>: an embeddable WASM
+runtime with support for WASI and the component model</li>
 <li><code>bevy</code>: a delightful game engine that builds on top of
 the incredible Rust ecosystem to handle everything from input to
 windowing to audio to GPU to rendering and much more</li>
@@ -352,10 +359,10 @@ compose.</p>
 <h2 id="diving-deeper">Diving deeper</h2>
 <p>The <code>portal</code> app is the meat of the project, and is the
 first prototype implementation of a “portal”.</p>
-<p>It’s built with <code>Bevy</code>, which will give us easy access to
-<code>winit</code>, <code>wgpu</code> and a host of other amazing
-projects in the Rust ecosystem, parts of which we plan to expose through
-capabilities.</p>
+<p>It’s built with <code>[Bevy](https://bevyengine.org/)</code>, which
+will give us easy access to <code>winit</code>, <code>wgpu</code> and a
+host of other amazing projects in the Rust ecosystem, parts of which we
+plan to expose through capabilities.</p>
 <p>In its current form, it has an address bar that accepts a <u>URL</u>
 to the client app WASM file. After entering the <u>URL</u> and pressing
 Enter, the portal connects to the server, downloads the brotli-encoded
@@ -446,9 +453,9 @@ class="sourceCode rs"><code class="sourceCode rust"><span id="cb15-1"><a href="#
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">// the contents of `private/secret.txt` will not print</span></span>
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>print(<span class="op">&amp;</span><span class="dt">String</span><span class="pp">::</span>from_utf8_lossy(<span class="op">&amp;</span>secret))<span class="op">;</span></span></code></pre></div>
 <p>If <code>--allow-read</code> is omitted, neither of the files will be
-read. If <code>--allow-read="./public"</code>, <code>hello</code>, the
-contents of <code>./public/hello.txt</code>, is printed
-successfully.</p>
+read.<br />
+If <code>--allow-read="./public"</code>, the contents of
+<code>./public/hello.txt</code>, is printed successfully.</p>
 <h2 id="a-dream-of-spring">A dream of Spring</h2>
 <p>We want to be able to make and meet this promise: write a native app
 in your chosen language that is secure and massively distributable.</p>
