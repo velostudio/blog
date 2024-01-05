@@ -93,15 +93,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-S5B97YYXF4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-S5B97YYXF4');
-</script>
 <body>
 <header id="title-block-header">
 <h1 class="title">Web: The Good Parts</h1>
@@ -455,9 +446,9 @@ class="sourceCode rs"><code class="sourceCode rust"><span id="cb15-1"><a href="#
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">// the contents of `private/secret.txt` will not print</span></span>
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>print(<span class="op">&amp;</span><span class="dt">String</span><span class="pp">::</span>from_utf8_lossy(<span class="op">&amp;</span>secret))<span class="op">;</span></span></code></pre></div>
 <p>If <code>--allow-read</code> is omitted, neither of the files will be
-read. If
-<code>--allow-read="./public",</code>hello<code>, the contents of</code>./public/hello.txt`,
-is printed successfully.</p>
+read. If <code>--allow-read="./public"</code>, <code>hello</code>, the
+contents of <code>./public/hello.txt</code>, is printed
+successfully.</p>
 <h2 id="a-dream-of-spring">A dream of Spring</h2>
 <p>We want to be able to make and meet this promise: write a native app
 in your chosen language that is secure and massively distributable.</p>

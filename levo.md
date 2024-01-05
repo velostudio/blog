@@ -1,8 +1,8 @@
 ---
-title: 'Web: The Good Parts'
+title: "Web: The Good Parts"
 author:
-  - '[StaffEngineer](https://github.com/StaffEngineer)'
-  - '[tigregalis](https://github.com/tigregalis)'
+  - "[StaffEngineer](https://github.com/StaffEngineer)"
+  - "[tigregalis](https://github.com/tigregalis)"
 ---
 
 ## In the beginning
@@ -351,7 +351,7 @@ print(&String::from_utf8_lossy(&secret));
 ```
 
 If `--allow-read` is omitted, neither of the files will be read.
-If `--allow-read="./public",
+If `--allow-read="./public"`,
 `hello`, the contents of `./public/hello.txt`, is printed successfully.
 
 ## A dream of Spring
