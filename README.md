@@ -3,5 +3,5 @@
 To re-generate html file run:
 
 ```sh
-pandoc -s levo.md -c css.css -o levo.html
+pandoc -s <file_name>.md -c css.css -o <file_name>.html
 ```
