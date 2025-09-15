@@ -1,15 +1,26 @@
 /* Gruber Darker colors, original Modest fonts and sizes */
+/* Updated with improved mobile text sizing */
 
 html {
-  font-size: 12px;
+  font-size: 16px; /* Increased from 12px for better mobile readability */
+}
+
+@media screen and (max-width: 32rem) {
+  html { 
+    font-size: 18px; /* Even larger text on very small screens */
+  }
+  body {
+    padding: 1rem; /* More padding on small screens */
+    line-height: 1.9; /* Slightly increased line height for mobile */
+  }
 }
 
 @media screen and (min-width: 32rem) and (max-width: 48rem) {
-  html { font-size: 15px; }
+  html { font-size: 17px; /* Slightly increased */ }
 }
 
 @media screen and (min-width: 48rem) {
-  html { font-size: 16px; }
+  html { font-size: 18px; /* Slightly increased */ }
 }
 
 body {
@@ -23,22 +34,6 @@ body {
 }
 
 /* Typography */
-html {
-  font-size: 12px;
-}
-
-@media screen and (min-width: 32rem) and (max-width: 48rem) {
-  html {
-    font-size: 15px;
-  }
-}
-
-@media screen and (min-width: 48rem) {
-  html {
-    font-size: 16px;
-  }
-}
-
 h1, .modest-h1,
 h2, .modest-h2,
 h3, .modest-h3,
