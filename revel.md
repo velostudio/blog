@@ -44,6 +44,7 @@ The user can change the space of the cloned note to space **B**; now, if the use
 
 Another idea is **changing the space of elements**, including space visual representation.  
 This means it's possible to loop spaces (space **A** is the parent of **B**, and space **B** is the parent of **A**). Or it's possible to create a kind of "memory leak" of a space - like removing a pointer to a space from its current space or its ancestors. But actually, it's not really a leak, since the app has search functionality that allows you to find any element, including spaces that are unreachable via the canvas. By the way, the app uses full-text search with BM25 ranking thanks to SQLite3.  
+
 Going back to the usefulness of this app: I am a true believer that we create our own reality and in the importance of the [dream board](https://www.actualityofbeing.com/dreamboard-1). Since this app supports text notes, images, and videos, it can be used as a digital form of it. Another use case: in every job I've worked, there was some sort of internal knowledge; people showed you how to do something, but it wasn't captured anywhere. This app can be used as an internal wiki, and with full-text search, it can be super handy.
 At the moment, I am looking for a job, so if you can suggest any permanent role where people are solving complex technical challenges, feel free to send a message to: velo.app1@gmail.com.
 
