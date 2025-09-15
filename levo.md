@@ -1,7 +1,7 @@
 ---
 title: "Web: The Good Parts"
 author:
-  - "[StaffEngineer](https://github.com/StaffEngineer)"
+  - "[Dimchikkk](https://github.com/Dimchikkk)"
   - "[tigregalis](https://github.com/tigregalis)"
 ---
 
