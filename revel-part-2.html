@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Dimchikkk" />
+  <title>Revel Part 2: Building a DSL for Canvas Automation in C</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="gruber-darker.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Revel Part 2: Building a DSL for Canvas Automation in C</h1>
+<p class="author"><a href="https://github.com/Dimchikkk">Dimchikkk</a></p>
+</header>
+<p>In my <a href="https://velostudio.github.io/blog/revel.html">previous post</a>, I introduced <a href="https://github.com/Dimchikkk/revel">Revel</a> - an infinite canvas note-taking app written in C. Since then, I’ve been using it daily and adding features that make it genuinely productive. Today I want to share what makes Revel unique: its <strong>Domain Specific Language (DSL)</strong> and several powerful features I haven’t seen together in other tools.</p>
+<p>Building Revel took about <strong>one month</strong> of coding, and honestly, it was <strong>one of the most fun projects</strong> I’ve ever worked on in C. There’s something deeply satisfying about writing systems-level code that directly manipulates pixels, manages memory, and produces instant visual feedback. No framework overhead, no build step hell - just pure C, GTK4, and SQLite3.</p>
+<h2 id="the-dsl-automating-the-canvas">The DSL: Automating the Canvas</h2>
+<p>One feature I’m particularly proud of is Revel’s <strong>DSL (Domain Specific Language)</strong>. It lets you programmatically create entire canvas layouts with a simple text script. Think of it as “Infrastructure as Code” but for visual brainstorming.</p>
+<p>Here’s a taste of what the DSL looks like:</p>
+<pre><code>canvas_background (0.15,0.15,0.18,1.0) true (0.25,0.25,0.30,0.5)
+
+note_create title &quot;My Project&quot; (50,50) (280,70) bg #2563eb text_color #FFFFFF font &quot;Ubuntu Bold 36&quot;
+
+shape_create s1 circle &quot;Design&quot; (50,200) (120,120) bg #10b981 stroke 3 filled true text_color #FFFFFF
+shape_create s2 rectangle &quot;Build&quot; (200,200) (130,80) bg #f59e0b stroke 3 filled true fill_style solid text_color #000000
+shape_create s3 diamond &quot;Deploy&quot; (360,200) (110,100) bg #8b5cf6 stroke 3 filled true rotation 15 text_color #FFFFFF
+
+connect s1 s2 parallel single #3b82f6
+connect s2 s3 parallel double #f59e0b
+
+image_create screenshot examples/demo.jpg (50,350) (300,200)
+video_create demo examples/video.mp4 (400,350) (320,200)</code></pre>
+<p><strong>Why is this useful?</strong></p>
+<ul>
+<li><strong>Reproducible layouts</strong> - Save your canvas setup as a script and recreate it anytime</li>
+<li><strong>Template-driven workflows</strong> - Create project templates, meeting notes, or design patterns</li>
+<li><strong>Batch operations</strong> - Generate dozens of connected elements in seconds</li>
+<li><strong>Version control</strong> - Track changes to your canvas structure in git</li>
+<li><strong>Documentation</strong> - Your canvas layout becomes self-documenting code</li>
+</ul>
+<p>I’ve created a demo DSL file that showcases various features. You can run it yourself:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="fu">make</span> -B -j 7 <span class="kw">&amp;&amp;</span> <span class="ex">./revel</span> --dsl examples/blog_dsl_demo.dsl</span></code></pre></div>
+<p><img src="./blog.png" /></p>
+<p>The implementation is straightforward C: a simple parser that tokenizes the DSL commands and calls the same internal functions the GUI uses. No external parser generators, no complex AST - just string manipulation and direct API calls. This is the beauty of C: you can build powerful features without pulling in heavyweight dependencies.</p>
+<h2 id="rich-element-types-with-extensive-styling">Rich Element Types with Extensive Styling</h2>
+<p>Revel supports multiple element types including shapes (circle, rectangle, rounded rectangle, diamond, vertical cylinder, horizontal cylinder, arrow, line, triangle), text elements, notes, paper notes, spaces, images, and videos.</p>
+<p>What makes these elements special:</p>
+<ul>
+<li><strong>Fill Styles (shapes only):</strong> Choose between <code>solid</code>, <code>hachure</code> (hand-drawn hatching), or <code>crosshatch</code> fills. This gives your diagrams a sketch-like aesthetic that feels less sterile than typical diagramming tools.</li>
+<li><strong>Stroke Styles (shapes only):</strong> Solid, dashed, or dotted outlines with configurable width and color.</li>
+<li><strong>Rotation:</strong> Any element can be rotated to any angle. Want a tilted cylinder or a diagonal arrow? Just add <code>rotation 45</code> to the DSL command.</li>
+<li><strong>Text Labels:</strong> Elements can contain text with full typography control (font family, size, bold/italic, color).</li>
+</ul>
+<p><img src="./shapes.png" /></p>
+<p>Here’s an example creating a rotated cylinder with hachure fill:</p>
+<pre><code>shape_create cyl vcylinder &quot;Database&quot; (100,100) (120,150) bg #f97316 stroke 3 stroke_color #7c2d12 filled true fill_style hachure text_color #FFFFFF font &quot;Ubuntu Bold 16&quot; rotation 25</code></pre>
+<h2 id="smart-arrow-routing">Smart Arrow Routing</h2>
+<p>Connecting elements visually is crucial for brainstorming and system design. Revel’s <strong>arrow system</strong> supports:</p>
+<ul>
+<li><strong>Parallel arrows</strong> - Multi-segment perpendicular connections between elements</li>
+<li><strong>Straight arrows</strong> - Direct point-to-point connections</li>
+<li><strong>Arrowhead types</strong> - None, single, or double arrowheads</li>
+<li><strong>4-point connection system</strong> - Snap to top, bottom, left, and right of elements</li>
+<li><strong>Custom colors</strong> - Including alpha transparency for subtle connections</li>
+</ul>
+<pre><code>connect element1 element2 parallel single #3b82f6
+connect element2 element3 straight double #f59e0b
+connect element3 element4 straight none #64748b60</code></pre>
+<p>The parallel arrow algorithm creates clean perpendicular connections that make your diagrams look polished without manual adjustment. Revel automatically determines optimal connection points by calculating the nearest points between elements - as you move elements around, connections dynamically update to use the best anchor points (top, bottom, left, or right).</p>
+<h2 id="media-integration-images-and-video">Media Integration: Images and Video</h2>
+<p>Revel treats <strong>media as first-class citizens</strong>. You can:</p>
+<ul>
+<li><strong>Paste images</strong> directly from clipboard (Ctrl+V)</li>
+<li><strong>Drag &amp; drop</strong> images and videos from your file manager</li>
+<li><strong>Play MP4 videos</strong> inline with GStreamer integration</li>
+<li><strong>Store everything</strong> in the SQLite database (images and small videos as BLOBs)</li>
+</ul>
+<pre><code>image_create photo examples/media/cat.jpeg (50,400) (200,200)
+video_create clip examples/media/demo.mp4 (300,400) (320,200)</code></pre>
+<p>This is where Revel diverges from traditional note-taking apps. Instead of linking to external files that might move or get deleted, everything lives inside one portable <code>.db</code> file. Your entire knowledge base - text, images, videos, canvas layouts - is a <strong>single file</strong> you can backup, version, or sync however you want.</p>
+<h2 id="element-cloning-fork-vs-clone">Element Cloning: Fork vs Clone</h2>
+<p>This is a concept I haven’t seen in other tools. Revel distinguishes between:</p>
+<p><strong>Fork</strong> - Creates an independent copy. Change the copy, and the original stays unchanged.</p>
+<p><strong>Clone</strong> - Creates a linked copy. Clones can share specific properties:</p>
+<ul>
+<li><strong>Clone by text</strong> - Multiple elements share the same text content</li>
+<li><strong>Clone by size</strong> - Multiple elements maintain identical dimensions</li>
+<li><strong>Clone by position</strong> - Multiple elements move together</li>
+<li><strong>Clone by color</strong> - Color changes propagate across clones</li>
+</ul>
+<p>For example, let’s say you’re designing a UI mockup with multiple buttons that should always have the same dimensions. Clone them by size, and resizing one automatically resizes all linked clones. Change the text independently, but the size stays synchronized.</p>
+<p>This is implemented in C using a reference system in SQLite. Each element can reference a unique property ID that’s shared between cloned visual elements. The UI listens for model changes and updates all elements that should be synchronized.</p>
+<h2 id="nested-spaces-infinite-hierarchy">Nested Spaces: Infinite Hierarchy</h2>
+<p><strong>Spaces</strong> are both containers <em>and</em> elements. This means:</p>
+<ul>
+<li>A space can contain notes, images, shapes, videos, and <em>other spaces</em></li>
+<li>Each space is an infinite canvas</li>
+<li>You can zoom into a space and keep working</li>
+<li><strong>Infinite depth</strong> - spaces within spaces within spaces…</li>
+</ul>
+<p>Want to organize a project? Create a top-level space called “Website Redesign”, then create sub-spaces for “Research”, “Wireframes”, “Assets”, etc. Each sub-space is its own infinite canvas.</p>
+<p>The implementation allows even weirder things:</p>
+<ul>
+<li><strong>Circular references</strong> - Space A contains Space B, Space B contains Space A</li>
+<li><strong>Orphaned spaces</strong> - Spaces that aren’t children of any other space, but still searchable via full-text search</li>
+</ul>
+<p>This flexibility comes from treating spaces as graph nodes rather than a strict tree hierarchy. It’s stored in SQLite with simple <code>parent_id</code> references, letting you build whatever structure makes sense for your workflow.</p>
+<h2 id="full-text-search-with-bm25">Full-Text Search with BM25</h2>
+<p>With all this content, you need a way to find things. Revel uses <strong>SQLite’s FTS5 extension with BM25 ranking</strong>. This is the same algorithm used by search engines.</p>
+<p>Press <strong>Ctrl+S</strong> and start typing. Revel searches:</p>
+<ul>
+<li>Note text content</li>
+<li>Text labels in shapes</li>
+<li>All text-based elements</li>
+</ul>
+<p>Results are ranked by relevance, and you can jump directly to any element, even if it’s nested deep in another space.</p>
+<p>The BM25 implementation is essentially free - SQLite does all the heavy lifting. In C, it’s just a matter of executing the right SQL query:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>SELECT ets.element_uuid, ets.text_content, ets.space_uuid, s.name</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>FROM element_text_fts ets</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>JOIN spaces s ON ets.space_uuid = s.uuid</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>WHERE ets.text_content MATCH ?</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>ORDER BY bm25(element_text_fts);</span></code></pre></div>
+<h2 id="why-c-why-gtk4">Why C? Why GTK4?</h2>
+<p>I mentioned in my first post that I previously built <a href="https://github.com/Dimchikkk/velo">Velo</a> in Rust. Rust is an amazing language, but I wanted to learn C and GTK4 is an excellent GUI toolkit that works beautifully with C.</p>
+<p>With GTK4 in C:</p>
+<ul>
+<li><strong>Direct API access</strong> - No wrapper overhead</li>
+<li><strong>Fast compilation</strong> - <code>make -j 7</code> builds the entire project almost instantly</li>
+<li><strong>Readable debugging</strong> - GDB works perfectly, stack traces are clean</li>
+<li><strong>Straightforward</strong> - No hidden complexity, what you write is what runs</li>
+</ul>
+<p>The entire codebase is over 15,000 lines of C. No build system complexity, no dependency hell, no framework magic.</p>
+<p>I built Revel on my lovely ThinkPad laptop running Linux. It should work on Unix systems, though Windows would need some tweaks since it uses GStreamer for video playback.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>I’m actively using Revel daily for:</p>
+<ul>
+<li>Project planning and task tracking</li>
+<li>Technical design documents with diagrams</li>
+<li>Learning notes with screenshots and video clips</li>
+<li>Interview preparation (yes, I’m job hunting!)</li>
+</ul>
+<p>If there’s demand, I could add <strong>multiplayer support</strong> for collaborative editing. Or I could create specialized space types - imagine a music player space or a Trello-like dashboard space for project management.</p>
+<p>The most exciting direction is <strong>AI integration</strong>. Since Revel has a DSL, I can ask AI to generate complex layouts. I already used AI to create visualizations for the README. But imagine this: you ask “explain species of cats” and an AI model downloads relevant images from the web, creates a diagram showing the hierarchy, loads everything into Revel with proper connections and labels. The DSL makes this kind of automation possible. Isn’t that amazing?</p>
+<p>One more thing: I first started using AI agents in the middle of this project, and my experience was <strong>mind-blowing</strong>. The productivity boost was incredible.</p>
+<h2 id="job-search">Job Search</h2>
+<p>I’m currently <strong>looking for a full-time software engineering role</strong> where people are solving complex technical challenges. If you know of opportunities - or if your team is building something interesting - please reach out: <strong>velo.app1@gmail.com</strong></p>
+<p>Building Revel in one month reminded me why I love programming: turning ideas into working software that solves real problems. The fact that it’s written in C, uses rock-solid dependencies (GTK4, SQLite3, GStreamer), and stores everything in a single portable file means this tool will keep working for decades. No dependency rot, no framework obsolescence - just code that does its job.</p>
+<p>If you want to try Revel, check out the <a href="https://github.com/Dimchikkk/revel">GitHub repo</a>. Run the showcase DSL to see what it can do:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="fu">git</span> clone https://github.com/Dimchikkk/revel</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a><span class="bu">cd</span> revel</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="fu">make</span> -B -j 7</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="ex">./revel</span> --dsl examples/showcase.dsl</span></code></pre></div>
+<p><img src="./showcase.png" /></p>
+<p>Thanks for reading! Feel free to reach out with questions or feedback.</p>
+<hr />
+<p><strong>Links:</strong></p>
+<ul>
+<li>GitHub: <a href="https://github.com/Dimchikkk/revel">github.com/Dimchikkk/revel</a></li>
+<li>Previous post: <a href="https://velostudio.github.io/blog/revel.html">Revel: My Experiment in Infinite, Portable Note-Taking</a></li>
+</ul>
+</body>
+</html>

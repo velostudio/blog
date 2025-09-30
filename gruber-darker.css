@@ -43,9 +43,9 @@ h4, .modest-h4 {
   line-height: 1.42;
 }
 
-h2, .modest-h1 { font-size: 2.827rem; margin-top: 0; }
-h3, .modest-h2 { font-size: 1.999rem; }
-h4, .modest-h3 { font-size: 1.414rem; }
+h2, .modest-h1 { font-size: 2.2rem; margin-top: 0; }
+h3, .modest-h2 { font-size: 1.6rem; }
+h4, .modest-h3 { font-size: 1.3rem; }
 h5, .modest-h4 { font-size: 1.121rem; }
 h6, .modest-h5 { font-size: 0.88rem; }
 h6, .modest-h6 { font-size: 0.5rem; }
@@ -72,6 +72,18 @@ pre {
   line-height: 1.25;
   overflow-x: auto;
   border: 1px solid #453d41;
+}
+
+/* Disable link styling inside code blocks */
+pre a, pre a:visited, code a, code a:visited {
+  color: #f4f4ff;
+  text-decoration: none;
+}
+
+/* Override Pandoc syntax highlighting for better visibility */
+code span.bu, code span.fu, code span.kw, code span.cf {
+  color: #f4f4ff !important;
+  font-weight: normal !important;
 }
 
 /* Blockquotes */
