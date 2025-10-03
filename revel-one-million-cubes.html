@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Dimchikkk" />
+  <title>Revel Part 3: Rendering 1 Million Cubes</title>
+  <link rel="icon" type="image/x-icon" href="./revel.ico">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="gruber-darker.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Revel Part 3: Rendering 1 Million Cubes</h1>
+<p class="author"><a href="https://github.com/Dimchikkk">Dimchikkk</a></p>
+</header>
+<p>Not so long ago, I wrote about <a href="https://velostudio.github.io/blog/revel-part-2.html">Revel’s DSL</a> and how it enables programmatic canvas generation. Today I’m excited to share some experiments I’ve been doing with DSL and AI - and how stress-testing with AI-generated content led me down a rabbit hole of performance optimization that culminated in rendering <strong>1 million cubes</strong>.</p>
+<h2 id="ai-meets-dsl-surprisingly-good-results">AI Meets DSL: Surprisingly Good Results</h2>
+<p>The journey started when I added <strong>Bézier curves</strong> to Revel and extended the DSL to support them. I wanted to test if AI could actually create something visually appealing using the DSL syntax. So I asked Claude to generate a scenic image.</p>
+<p>Surprisingly, it drew a pretty cute scene! A car driving through mountains with a sun, clouds, and even birds flying - all created programmatically using <strong>49 elements</strong>.</p>
+<figure>
+<img src="./ai_drawing.png" alt="" /><figcaption>AI-generated scenic drawing</figcaption>
+</figure>
+<p><em>Generated from <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/ai_drawing.dsl">ai_drawing.dsl</a></em></p>
+<p>I understand AI can generate realistic videos in 2025, but I was still genuinely surprised it could compose such a charming scene using primitive shapes and Bézier curves. And this isn’t a static image - you can adjust the scene yourself if needed since everything is built from adjustable DSL elements.</p>
+<h2 id="ai-as-a-technical-interviewer">AI as a Technical Interviewer</h2>
+<p>Then I started playing with something more useful for me personally. I took a common interview concept and asked AI to explain it visually using Revel’s DSL. By the way, I’m looking for a full-time software engineering role - if you or your team are solving complex technical challenges, reach out at <strong>velo.app1@gmail.com</strong>.</p>
+<p>I asked it to create a diagram explaining <strong>consistent hashing</strong>, and it did surprisingly well! The explanation was clear and would probably pass an interview.</p>
+<figure>
+<img src="./consistent_hashing.png" alt="" /><figcaption>AI-generated consistent hashing diagram</figcaption>
+</figure>
+<p><em>Generated from <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/ai_consistent_hashing.dsl">ai_consistent_hashing.dsl</a></em></p>
+<p>Again, it’s all adjustable - you can use this as a starting point and add your own touches. And I didn’t even use the most advanced AI model available!</p>
+<h2 id="the-performance-challenge-from-10k-to-1-million">The Performance Challenge: From 10K to 1 Million</h2>
+<p>After these experiments, I added support for drawing <strong>3D cubes</strong> as a shape type. Then an idea struck me: let’s stress-test the app by drawing a huge 3D structure made of smaller cubes.</p>
+<p>That’s how a <strong>whole day journey of optimization</strong> began.</p>
+<p>I wrote a <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/cube_generator.py">Python script</a> that generates DSL files with different amounts of cubes arranged in a 3D grid:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="kw">def</span> generate_dsl(N):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>    s <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    offset_x <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>    offset_y <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>            <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>                x_pos <span class="op">=</span> offset_x <span class="op">+</span> i <span class="op">*</span> s <span class="op">-</span> k <span class="op">*</span> s <span class="op">*</span> <span class="fl">0.5</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>                y_pos <span class="op">=</span> offset_y <span class="op">+</span> j <span class="op">*</span> s <span class="op">-</span> k <span class="op">*</span> s <span class="op">*</span> <span class="fl">0.5</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a>                <span class="co"># Gradient coloring based on position</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>                r <span class="op">=</span> <span class="bu">int</span>(i <span class="op">/</span> (N<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> <span class="dv">150</span>) <span class="op">+</span> <span class="dv">105</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>                g <span class="op">=</span> <span class="bu">int</span>(j <span class="op">/</span> (N<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> <span class="dv">150</span>) <span class="op">+</span> <span class="dv">105</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true"></a>                b <span class="op">=</span> <span class="bu">int</span>(k <span class="op">/</span> (N<span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> <span class="dv">150</span>) <span class="op">+</span> <span class="dv">105</span></span></code></pre></div>
+<p>The script generates NxNxN cubes with an isometric 3D perspective and gradient coloring.</p>
+<h3 id="the-starting-point-10000-cubes">The Starting Point: 10,000 Cubes</h3>
+<p>Initially, I could barely handle <strong>10,000 cubes</strong> (a 22×22×22 grid). Anything more would completely freeze the app.</p>
+<figure>
+<img src="./10_000.png" alt="" /><figcaption>10,000 cubes rendering</figcaption>
+</figure>
+<p>The problem was obvious: I was rendering every single element on every frame, sorting all elements by z-index, and hitting the database with individual queries for each operation.</p>
+<h3 id="optimization-round-1-frustum-culling">Optimization Round 1: Frustum Culling</h3>
+<p>The first major optimization was <strong>view frustum culling</strong> - only rendering elements that are actually visible in the viewport.</p>
+<p>In <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/src/canvas_core.c#L475-L498">canvas_core.c:475-498</a>, I added:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co">// Calculate visible area for culling FIRST</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="dt">int</span> visible_x = -data-&gt;offset_x;</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="dt">int</span> visible_y = -data-&gt;offset_y;</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="dt">int</span> visible_width = gtk_widget_get_width(data-&gt;drawing_area) / data-&gt;zoom_scale;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a><span class="dt">int</span> visible_height = gtk_widget_get_height(data-&gt;drawing_area) / data-&gt;zoom_scale;</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="co">// OPTIMIZATION: Collect only visible elements first, then sort</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>GList *visible_elements = NULL;</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="cf">for</span> (GList *l = visual_elements; l != NULL; l = l-&gt;next) {</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>    Element *element = (Element*)l-&gt;data;</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>    <span class="co">// View frustum culling - skip elements completely outside viewport</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>    <span class="cf">if</span> (element-&gt;x &gt;= visible_x + visible_width ||</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>        element-&gt;y &gt;= visible_y + visible_height ||</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a>        element-&gt;x + element-&gt;width &lt;= visible_x ||</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>        element-&gt;y + element-&gt;height &lt;= visible_y) {</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>        <span class="cf">continue</span>;</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true"></a>    }</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true"></a>    visible_elements = g_list_prepend(visible_elements, element);</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true"></a>}</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a><span class="co">// Sort only the visible elements by z-index</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a>visible_elements = g_list_sort(visible_elements, compare_elements_by_z_index);</span></code></pre></div>
+<p>This was huge. Instead of sorting and rendering all elements, we now only process what’s actually on screen. With 10,000 cubes, only a few hundred might be visible at any given viewport.</p>
+<p>This brought me to <strong>15,000 cubes</strong>.</p>
+<h3 id="optimization-round-2-quadtree-spatial-indexing">Optimization Round 2: Quadtree Spatial Indexing</h3>
+<p>The next bottleneck was element picking - determining which element the user clicked on. With thousands of elements, iterating through all of them on every mouse click was unacceptable.</p>
+<p>I implemented a <strong>quadtree spatial index</strong> (<a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/src/quadtree.c">quadtree.c</a>) that partitions the 2D canvas space hierarchically:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="dt">static</span> <span class="dt">void</span> quadtree_node_insert(QuadTreeNode *node, Element *element) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>    <span class="cf">if</span> (!bounds_intersects_element(&amp;node-&gt;bounds, element)) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>        <span class="cf">return</span>;</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>    }</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    <span class="cf">if</span> (node-&gt;depth &gt;= MAX_DEPTH || node-&gt;elements-&gt;len &lt; MAX_CAPACITY) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>        g_ptr_array_add(node-&gt;elements, element);</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>        <span class="cf">return</span>;</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>    }</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>    <span class="cf">if</span> (node-&gt;children[<span class="dv">0</span>] == NULL) {</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>        quadtree_node_subdivide(node);</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>    }</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a>    <span class="co">// Insert into appropriate child quadrants</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true"></a>    <span class="cf">for</span> (<span class="dt">int</span> i = <span class="dv">0</span>; i &lt; <span class="dv">4</span>; i++) {</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true"></a>        quadtree_node_insert(node-&gt;children[i], element);</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a>    }</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a>}</span></code></pre></div>
+<p>The quadtree includes optimizations for rotated elements using axis-aligned bounding boxes and fast-path checking for non-rotated elements (the common case).</p>
+<p>With quadtree picking, clicking on an element went from O(n) to O(log n). This optimization brought me to <strong>100,000 cubes</strong>.</p>
+<h3 id="optimization-round-3-database-layer">Optimization Round 3: Database Layer</h3>
+<p>The next bottleneck was SQLite. I was hammering the database with individual inserts for each element when loading DSL files.</p>
+<p>I added several <strong>SQLite pragma optimizations</strong> in <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/src/database.c#L16-L20">database.c:16-20</a>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA journal_mode = WAL;&quot;</span>, NULL, NULL, NULL);</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA synchronous = NORMAL;&quot;</span>, NULL, NULL, NULL);</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA cache_size = -64000;&quot;</span>, NULL, NULL, NULL);  <span class="co">// 64MB cache</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA temp_store = MEMORY;&quot;</span>, NULL, NULL, NULL);</span></code></pre></div>
+<p>These settings:</p>
+<ul>
+<li><strong>WAL mode</strong> (Write-Ahead Logging) - allows concurrent reads during writes and improves write performance</li>
+<li><strong>synchronous = NORMAL</strong> - balances durability with performance (still safe but faster)</li>
+<li><strong>64MB cache</strong> - keeps more data in memory instead of hitting disk</li>
+<li><strong>temp_store = MEMORY</strong> - uses RAM for temporary tables and sorting operations</li>
+</ul>
+<p>But the biggest win was <strong>transaction batching</strong>. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>database_begin_transaction(canvas-&gt;model-&gt;db);</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">// ... create thousands of elements ...</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>database_commit_transaction(canvas-&gt;model-&gt;db);</span></code></pre></div>
+<p>This change alone was <strong>massive</strong>. SQLite’s performance with bulk inserts inside a single transaction is orders of magnitude faster than individual transactions.</p>
+<p>I also rewrote several queries to use JOINs instead of separate queries, which reduced round-trips to the database.</p>
+<p>Combined with these optimizations, database operations went from being the primary bottleneck to barely noticeable.</p>
+<h3 id="other-optimizations">Other Optimizations</h3>
+<p>Beyond the major changes, I made several smaller improvements. The space tree view (which shows the hierarchy of spaces in a sidebar) now builds lazily - it only constructs the tree when you actually open it, instead of building on app start.</p>
+<h3 id="the-final-push-1-million-cubes">The Final Push: 1 Million Cubes</h3>
+<p>With all these optimizations in place, I finally reached my goal: <strong>1,000,000 cubes</strong> (a 100×100×100 grid).</p>
+<figure>
+<img src="./1_000_000.png" alt="" /><figcaption>1 million cubes rendering</figcaption>
+</figure>
+<p>The app can:</p>
+<ul>
+<li>Load the DSL file with 1 million elements</li>
+<li>Save them to the SQLite database</li>
+<li>Open the database with 1 million elements</li>
+<li>Pick elements efficiently (using quadtree indexing)</li>
+</ul>
+<p>I decided to stop here. I will never have anywhere close to 1 million elements in a single space in real-world usage. Mission accomplished.</p>
+<h2 id="the-results">The Results</h2>
+<p>Revel now handles extreme stress tests that go far beyond real-world usage. The optimizations I implemented for the 1 million cube challenge benefit everyday use:</p>
+<ul>
+<li>Smoother scrolling with hundreds of elements</li>
+<li>Instant element picking even in dense diagrams</li>
+<li>Fast database saves and loads</li>
+<li>Responsive UI regardless of canvas complexity</li>
+</ul>
+<p>I’m still actively using Revel daily for project planning, technical diagrams, and interview preparation. The combination of DSL automation and AI generation opens up interesting possibilities. Imagine asking an AI to “draw the system design of Netflix” and having it generate a fully-interactive, editable architecture diagram with all the components, connections, and explanations.</p>
+<p>If you want to try the stress test yourself:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co"># Generate 100x100x100 cube DSL (1 million cubes)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="ex">python</span> examples/cube_generator.py 100</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co"># Load it into Revel</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="ex">./revel</span> --dsl examples/ai_cube.dsl</span></code></pre></div>
+<p><em>Warning: This will take some time to load and use several GB of RAM. Start with smaller values like 20 (8,000 cubes) to get a feel for it.</em></p>
+<p>Building this in C continues to be a joy. No dependency hell, no framework magic, no compilation slowdowns. Just straightforward systems programming with direct control over performance.</p>
+<hr />
+<p><strong>Links:</strong></p>
+<ul>
+<li>GitHub: <a href="https://github.com/Dimchikkk/revel">github.com/Dimchikkk/revel</a></li>
+<li>Part 1: <a href="https://velostudio.github.io/blog/revel.html">Revel: My Experiment in Infinite, Portable Note-Taking</a></li>
+<li>Part 2: <a href="https://velostudio.github.io/blog/revel-part-2.html">Building a DSL for Canvas Automation in C</a></li>
+</ul>
+</body>
+</html>
