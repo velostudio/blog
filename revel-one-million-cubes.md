@@ -18,7 +18,7 @@ Surprisingly, it drew a pretty cute scene! A car driving through mountains with 
 
 I understand AI can generate realistic videos in 2025, but I was still genuinely surprised it could compose such a charming scene using primitive shapes and Bézier curves. And this isn't a static image - you can adjust the scene yourself if needed since everything is built from adjustable DSL elements.
 
-## AI as a Technical Interviewer
+## Using AI to Visualize Technical Concepts
 
 Then I started playing with something more useful for me personally. I took a common interview concept and asked AI to explain it visually using Revel's DSL. By the way, I'm looking for a full-time software engineering role - if you or your team are solving complex technical challenges, reach out at **velo.app1@gmail.com**.
 
