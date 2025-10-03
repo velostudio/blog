@@ -171,25 +171,13 @@
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true"></a>    }</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true"></a>}</span></code></pre></div>
 <p>The quadtree includes optimizations for rotated elements using axis-aligned bounding boxes and fast-path checking for non-rotated elements (the common case).</p>
-<p>With quadtree picking, clicking on an element went from O(n) to O(log n). This optimization brought me to <strong>100,000 cubes</strong>.</p>
+<p>With quadtree picking, element selection went from O(n) to O(log n), making the app responsive even with tens of thousands of elements. Combined with frustum culling, I could now handle <strong>100,000 cubes</strong>.</p>
 <h3 id="optimization-round-3-database-layer">Optimization Round 3: Database Layer</h3>
 <p>The next bottleneck was SQLite. I was hammering the database with individual inserts for each element when loading DSL files.</p>
-<p>I added several <strong>SQLite pragma optimizations</strong> in <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/src/database.c#L16-L20">database.c:16-20</a>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA journal_mode = WAL;&quot;</span>, NULL, NULL, NULL);</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA synchronous = NORMAL;&quot;</span>, NULL, NULL, NULL);</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA cache_size = -64000;&quot;</span>, NULL, NULL, NULL);  <span class="co">// 64MB cache</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>sqlite3_exec(*db, <span class="st">&quot;PRAGMA temp_store = MEMORY;&quot;</span>, NULL, NULL, NULL);</span></code></pre></div>
-<p>These settings:</p>
-<ul>
-<li><strong>WAL mode</strong> (Write-Ahead Logging) - allows concurrent reads during writes and improves write performance</li>
-<li><strong>synchronous = NORMAL</strong> - balances durability with performance (still safe but faster)</li>
-<li><strong>64MB cache</strong> - keeps more data in memory instead of hitting disk</li>
-<li><strong>temp_store = MEMORY</strong> - uses RAM for temporary tables and sorting operations</li>
-</ul>
-<p>But the biggest win was <strong>transaction batching</strong>. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>database_begin_transaction(canvas-&gt;model-&gt;db);</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="co">// ... create thousands of elements ...</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a>database_commit_transaction(canvas-&gt;model-&gt;db);</span></code></pre></div>
+<p>I added some SQLite pragmas for better performance (WAL mode, larger cache, memory temp storage), but the biggest win was <strong>transaction batching</strong>. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>database_begin_transaction(canvas-&gt;model-&gt;db);</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">// ... create thousands of elements ...</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>database_commit_transaction(canvas-&gt;model-&gt;db);</span></code></pre></div>
 <p>This change alone was <strong>massive</strong>. SQLite’s performance with bulk inserts inside a single transaction is orders of magnitude faster than individual transactions.</p>
 <p>I also rewrote several queries to use JOINs instead of separate queries, which reduced round-trips to the database.</p>
 <p>Combined with these optimizations, database operations went from being the primary bottleneck to barely noticeable.</p>
@@ -216,11 +204,11 @@
 </ul>
 <p>I’m still actively using Revel daily for project planning, technical diagrams, and interview preparation. The combination of DSL automation and AI generation opens up interesting possibilities. Imagine asking an AI to “draw the system design of Netflix-like distributed system” and having it generate a fully-interactive, editable architecture diagram with all the components, connections, and explanations.</p>
 <p>If you want to try the stress test yourself:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co"># Generate 100x100x100 cube DSL (1 million cubes)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="ex">python</span> examples/cube_generator.py 100</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a><span class="co"># Load it into Revel</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="ex">./revel</span> --dsl examples/ai_cube.dsl</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co"># Generate 100x100x100 cube DSL (1 million cubes)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="ex">python</span> examples/cube_generator.py 100</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="co"># Load it into Revel</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="ex">./revel</span> --dsl examples/ai_cube.dsl</span></code></pre></div>
 <p><em>Warning: This will take some time to load and use several GB of RAM. Start with smaller values like 20 (8,000 cubes) to get a feel for it.</em></p>
 <p>Building this in C continues to be a joy. No dependency hell, no framework magic, no compilation slowdowns. Just straightforward systems programming with direct control over performance.</p>
 <hr />

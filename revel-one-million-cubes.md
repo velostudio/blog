@@ -131,29 +131,13 @@ static void quadtree_node_insert(QuadTreeNode *node, Element *element) {
 
 The quadtree includes optimizations for rotated elements using axis-aligned bounding boxes and fast-path checking for non-rotated elements (the common case).
 
-With quadtree picking, clicking on an element went from O(n) to O(log n). This optimization brought me to **100,000 cubes**.
+With quadtree picking, element selection went from O(n) to O(log n), making the app responsive even with tens of thousands of elements. Combined with frustum culling, I could now handle **100,000 cubes**.
 
 ### Optimization Round 3: Database Layer
 
 The next bottleneck was SQLite. I was hammering the database with individual inserts for each element when loading DSL files.
 
-I added several **SQLite pragma optimizations** in [database.c:16-20](https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/src/database.c#L16-L20):
-
-```c
-sqlite3_exec(*db, "PRAGMA journal_mode = WAL;", NULL, NULL, NULL);
-sqlite3_exec(*db, "PRAGMA synchronous = NORMAL;", NULL, NULL, NULL);
-sqlite3_exec(*db, "PRAGMA cache_size = -64000;", NULL, NULL, NULL);  // 64MB cache
-sqlite3_exec(*db, "PRAGMA temp_store = MEMORY;", NULL, NULL, NULL);
-```
-
-These settings:
-
-- **WAL mode** (Write-Ahead Logging) - allows concurrent reads during writes and improves write performance
-- **synchronous = NORMAL** - balances durability with performance (still safe but faster)
-- **64MB cache** - keeps more data in memory instead of hitting disk
-- **temp_store = MEMORY** - uses RAM for temporary tables and sorting operations
-
-But the biggest win was **transaction batching**. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:
+I added some SQLite pragmas for better performance (WAL mode, larger cache, memory temp storage), but the biggest win was **transaction batching**. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:
 
 ```c
 database_begin_transaction(canvas->model->db);
