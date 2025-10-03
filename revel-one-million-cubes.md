@@ -147,7 +147,7 @@ With quadtree picking, element selection went from O(n) to O(log n), making the 
 
 The next bottleneck was SQLite. I was hammering the database with individual inserts for each element when loading DSL files.
 
-I added some SQLite pragmas for better performance (WAL mode, larger cache, memory temp storage), but the biggest win was **transaction batching**. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:
+I added some SQLite pragmas for better performance (WAL mode, larger cache, memory temp storage), but the biggest win was **transaction batching**. Originally, I was wrapping each individual element save/load operation in its own transaction. I refactored it to wrap all element saving/loading operations in a single transaction:
 
 ```c
 database_begin_transaction(canvas->model->db);

@@ -193,7 +193,7 @@
 <p>With quadtree picking, element selection went from O(n) to O(log n), making the app responsive even with tens of thousands of elements. Combined with frustum culling, I could now handle <strong>100,000 cubes</strong>.</p>
 <h3 id="optimization-round-3-database-layer">Optimization Round 3: Database Layer</h3>
 <p>The next bottleneck was SQLite. I was hammering the database with individual inserts for each element when loading DSL files.</p>
-<p>I added some SQLite pragmas for better performance (WAL mode, larger cache, memory temp storage), but the biggest win was <strong>transaction batching</strong>. Originally, the DSL executor was creating individual transactions for each element. I refactored it to wrap the entire DSL execution in a single transaction:</p>
+<p>I added some SQLite pragmas for better performance (WAL mode, larger cache, memory temp storage), but the biggest win was <strong>transaction batching</strong>. Originally, I was wrapping each individual element save/load operation in its own transaction. I refactored it to wrap all element saving/loading operations in a single transaction:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>database_begin_transaction(canvas-&gt;model-&gt;db);</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">// ... create thousands of elements ...</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>database_commit_transaction(canvas-&gt;model-&gt;db);</span></code></pre></div>
