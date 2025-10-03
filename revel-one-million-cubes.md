@@ -30,6 +30,16 @@ I asked it to create a diagram explaining **consistent hashing**, and it did sur
 
 Again, it's all adjustable - you can use this as a starting point and add your own touches. And I didn't even use the most advanced AI model available!
 
+## Practical Use Case: Weekly Calendar
+
+Beyond technical diagrams, the DSL is also great for creating structured layouts like calendars. I asked AI to generate a weekly interview calendar, and it created a clean, professional layout with time slots, color-coded interview blocks, and a status legend.
+
+![](./weekly_calendar.png)
+
+*Generated from [week_view_dsl.dsl](https://github.com/Dimchikkk/revel/blob/5d092dddec7a6c3d0c9f4d77f667a534bc95df29/examples/week_view_dsl.dsl)*
+
+The calendar includes hourly time slots from 9am-5pm, and you can easily add interview slots by copying the example blocks and adjusting positions. Each interview card can hold candidate details, position info, and be color-coded by status. It's a practical example of how the DSL can be used for everyday productivity tools, not just technical visualizations.
+
 ## The Performance Challenge: From 10K to 1 Million
 
 After these experiments, I added support for drawing **3D cubes** as a shape type. Then an idea struck me: let's stress-test the app by drawing a huge 3D structure made of smaller cubes.
