@@ -4,7 +4,7 @@ author:
   - "[Dimchikkk](https://github.com/Dimchikkk)"
 ---
 
-Not so long ago, I wrote about [Revel's DSL](https://velostudio.github.io/blog/revel-part-2.html) and how it enables programmatic canvas generation. Today I'm excited to share some experiments I've been doing with DSL and AI - and how stress-testing with AI-generated content led me down a rabbit hole of performance optimization that culminated in rendering **1 million cubes**.
+Not so long ago, I wrote about [Revel's DSL](https://velostudio.github.io/blog/revel-part-2.html) and how it enables programmatic canvas generation. Today I'm excited to share some experiments I've been doing with DSL and AI - and how I used a python script to stress-test the app, which led me down a rabbit hole of performance optimization that culminated in rendering **1 million cubes**.
 
 ## AI Meets DSL: Surprisingly Good Results
 
@@ -12,7 +12,7 @@ The journey started when I added **Bézier curves** to Revel and extended the DS
 
 Surprisingly, it drew a pretty cute scene! A car driving through mountains with a sun, clouds, and even birds flying - all created programmatically using **49 elements**.
 
-![AI-generated scenic drawing](./ai_drawing.png)
+![](./ai_drawing.png)
 
 *Generated from [ai_drawing.dsl](https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/ai_drawing.dsl)*
 
@@ -24,7 +24,7 @@ Then I started playing with something more useful for me personally. I took a co
 
 I asked it to create a diagram explaining **consistent hashing**, and it did surprisingly well! The explanation was clear and would probably pass an interview.
 
-![AI-generated consistent hashing diagram](./consistent_hashing.png)
+![](./consistent_hashing.png)
 
 *Generated from [ai_consistent_hashing.dsl](https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/ai_consistent_hashing.dsl)*
 
@@ -60,9 +60,9 @@ The script generates NxNxN cubes with an isometric 3D perspective and gradient c
 
 Initially, I could barely handle **10,000 cubes** (a 22×22×22 grid). Anything more would completely freeze the app.
 
-![10,000 cubes rendering](./10_000.png)
+![](./10_000.png)
 
-The problem was obvious: I was rendering every single element on every frame, sorting all elements by z-index, and hitting the database with individual queries for each operation.
+The problem was obvious: I was rendering every single element on every draw call, sorting all elements by z-index, and hitting the database with individual queries for each operation.
 
 ### Optimization Round 1: Frustum Culling
 
@@ -97,7 +97,7 @@ for (GList *l = visual_elements; l != NULL; l = l->next) {
 visible_elements = g_list_sort(visible_elements, compare_elements_by_z_index);
 ```
 
-This was huge. Instead of sorting and rendering all elements, we now only process what's actually on screen. With 10,000 cubes, only a few hundred might be visible at any given viewport.
+This was huge. Instead of sorting and rendering all elements, we now only process what's actually on screen.
 
 This brought me to **15,000 cubes**.
 
@@ -175,7 +175,7 @@ Beyond the major changes, I made several smaller improvements. The space tree vi
 
 With all these optimizations in place, I finally reached my goal: **1,000,000 cubes** (a 100×100×100 grid).
 
-![1 million cubes rendering](./1_000_000.png)
+![](./1_000_000.png)
 
 The app can:
 
@@ -195,7 +195,7 @@ Revel now handles extreme stress tests that go far beyond real-world usage. The 
 - Fast database saves and loads
 - Responsive UI regardless of canvas complexity
 
-I'm still actively using Revel daily for project planning, technical diagrams, and interview preparation. The combination of DSL automation and AI generation opens up interesting possibilities. Imagine asking an AI to "draw the system design of Netflix" and having it generate a fully-interactive, editable architecture diagram with all the components, connections, and explanations.
+I'm still actively using Revel daily for project planning, technical diagrams, and interview preparation. The combination of DSL automation and AI generation opens up interesting possibilities. Imagine asking an AI to "draw the system design of Netflix-like distributed system" and having it generate a fully-interactive, editable architecture diagram with all the components, connections, and explanations.
 
 If you want to try the stress test yourself:
 

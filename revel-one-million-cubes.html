@@ -84,21 +84,17 @@
 <h1 class="title">Revel Part 3: Rendering 1 Million Cubes</h1>
 <p class="author"><a href="https://github.com/Dimchikkk">Dimchikkk</a></p>
 </header>
-<p>Not so long ago, I wrote about <a href="https://velostudio.github.io/blog/revel-part-2.html">Revel’s DSL</a> and how it enables programmatic canvas generation. Today I’m excited to share some experiments I’ve been doing with DSL and AI - and how stress-testing with AI-generated content led me down a rabbit hole of performance optimization that culminated in rendering <strong>1 million cubes</strong>.</p>
+<p>Not so long ago, I wrote about <a href="https://velostudio.github.io/blog/revel-part-2.html">Revel’s DSL</a> and how it enables programmatic canvas generation. Today I’m excited to share some experiments I’ve been doing with DSL and AI - and how I used a python script to stress-test the app, which led me down a rabbit hole of performance optimization that culminated in rendering <strong>1 million cubes</strong>.</p>
 <h2 id="ai-meets-dsl-surprisingly-good-results">AI Meets DSL: Surprisingly Good Results</h2>
 <p>The journey started when I added <strong>Bézier curves</strong> to Revel and extended the DSL to support them. I wanted to test if AI could actually create something visually appealing using the DSL syntax. So I asked Claude to generate a scenic image.</p>
 <p>Surprisingly, it drew a pretty cute scene! A car driving through mountains with a sun, clouds, and even birds flying - all created programmatically using <strong>49 elements</strong>.</p>
-<figure>
-<img src="./ai_drawing.png" alt="" /><figcaption>AI-generated scenic drawing</figcaption>
-</figure>
+<p><img src="./ai_drawing.png" /></p>
 <p><em>Generated from <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/ai_drawing.dsl">ai_drawing.dsl</a></em></p>
 <p>I understand AI can generate realistic videos in 2025, but I was still genuinely surprised it could compose such a charming scene using primitive shapes and Bézier curves. And this isn’t a static image - you can adjust the scene yourself if needed since everything is built from adjustable DSL elements.</p>
 <h2 id="ai-as-a-technical-interviewer">AI as a Technical Interviewer</h2>
 <p>Then I started playing with something more useful for me personally. I took a common interview concept and asked AI to explain it visually using Revel’s DSL. By the way, I’m looking for a full-time software engineering role - if you or your team are solving complex technical challenges, reach out at <strong>velo.app1@gmail.com</strong>.</p>
 <p>I asked it to create a diagram explaining <strong>consistent hashing</strong>, and it did surprisingly well! The explanation was clear and would probably pass an interview.</p>
-<figure>
-<img src="./consistent_hashing.png" alt="" /><figcaption>AI-generated consistent hashing diagram</figcaption>
-</figure>
+<p><img src="./consistent_hashing.png" /></p>
 <p><em>Generated from <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/examples/ai_consistent_hashing.dsl">ai_consistent_hashing.dsl</a></em></p>
 <p>Again, it’s all adjustable - you can use this as a starting point and add your own touches. And I didn’t even use the most advanced AI model available!</p>
 <h2 id="the-performance-challenge-from-10k-to-1-million">The Performance Challenge: From 10K to 1 Million</h2>
@@ -121,10 +117,8 @@
 <p>The script generates NxNxN cubes with an isometric 3D perspective and gradient coloring.</p>
 <h3 id="the-starting-point-10000-cubes">The Starting Point: 10,000 Cubes</h3>
 <p>Initially, I could barely handle <strong>10,000 cubes</strong> (a 22×22×22 grid). Anything more would completely freeze the app.</p>
-<figure>
-<img src="./10_000.png" alt="" /><figcaption>10,000 cubes rendering</figcaption>
-</figure>
-<p>The problem was obvious: I was rendering every single element on every frame, sorting all elements by z-index, and hitting the database with individual queries for each operation.</p>
+<p><img src="./10_000.png" /></p>
+<p>The problem was obvious: I was rendering every single element on every draw call, sorting all elements by z-index, and hitting the database with individual queries for each operation.</p>
 <h3 id="optimization-round-1-frustum-culling">Optimization Round 1: Frustum Culling</h3>
 <p>The first major optimization was <strong>view frustum culling</strong> - only rendering elements that are actually visible in the viewport.</p>
 <p>In <a href="https://github.com/Dimchikkk/revel/blob/0769a66b9c459d1b5b8165dd24505274bf595a1c/src/canvas_core.c#L475-L498">canvas_core.c:475-498</a>, I added:</p>
@@ -152,7 +146,7 @@
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true"></a></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true"></a><span class="co">// Sort only the visible elements by z-index</span></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true"></a>visible_elements = g_list_sort(visible_elements, compare_elements_by_z_index);</span></code></pre></div>
-<p>This was huge. Instead of sorting and rendering all elements, we now only process what’s actually on screen. With 10,000 cubes, only a few hundred might be visible at any given viewport.</p>
+<p>This was huge. Instead of sorting and rendering all elements, we now only process what’s actually on screen.</p>
 <p>This brought me to <strong>15,000 cubes</strong>.</p>
 <h3 id="optimization-round-2-quadtree-spatial-indexing">Optimization Round 2: Quadtree Spatial Indexing</h3>
 <p>The next bottleneck was element picking - determining which element the user clicked on. With thousands of elements, iterating through all of them on every mouse click was unacceptable.</p>
@@ -203,9 +197,7 @@
 <p>Beyond the major changes, I made several smaller improvements. The space tree view (which shows the hierarchy of spaces in a sidebar) now builds lazily - it only constructs the tree when you actually open it, instead of building on app start.</p>
 <h3 id="the-final-push-1-million-cubes">The Final Push: 1 Million Cubes</h3>
 <p>With all these optimizations in place, I finally reached my goal: <strong>1,000,000 cubes</strong> (a 100×100×100 grid).</p>
-<figure>
-<img src="./1_000_000.png" alt="" /><figcaption>1 million cubes rendering</figcaption>
-</figure>
+<p><img src="./1_000_000.png" /></p>
 <p>The app can:</p>
 <ul>
 <li>Load the DSL file with 1 million elements</li>
@@ -222,7 +214,7 @@
 <li>Fast database saves and loads</li>
 <li>Responsive UI regardless of canvas complexity</li>
 </ul>
-<p>I’m still actively using Revel daily for project planning, technical diagrams, and interview preparation. The combination of DSL automation and AI generation opens up interesting possibilities. Imagine asking an AI to “draw the system design of Netflix” and having it generate a fully-interactive, editable architecture diagram with all the components, connections, and explanations.</p>
+<p>I’m still actively using Revel daily for project planning, technical diagrams, and interview preparation. The combination of DSL automation and AI generation opens up interesting possibilities. Imagine asking an AI to “draw the system design of Netflix-like distributed system” and having it generate a fully-interactive, editable architecture diagram with all the components, connections, and explanations.</p>
 <p>If you want to try the stress test yourself:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co"># Generate 100x100x100 cube DSL (1 million cubes)</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="ex">python</span> examples/cube_generator.py 100</span>
