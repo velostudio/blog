@@ -84,7 +84,7 @@
 <h1 class="title">Revel Part 3: Rendering 1 Million Cubes</h1>
 <p class="author"><a href="https://github.com/Dimchikkk">Dimchikkk</a></p>
 </header>
-<p>Not so long ago, I wrote about <a href="https://velostudio.github.io/blog/revel-part-2.html">Revel’s DSL</a> and how it enables programmatic canvas generation. Today I’m excited to share some experiments I’ve been doing with DSL and AI - and how I used a python script to stress-test the app, which led me down a rabbit hole of performance optimization that culminated in rendering <strong>1 million cubes</strong>.</p>
+<p>Not so long ago, I wrote about <a href="https://velostudio.github.io/blog/revel-part-2.html">Revel’s DSL</a> and how it enables programmatic canvas generation. Today I’m excited to share some experiments I’ve been doing with DSL and AI - and how I used a Python script to stress-test the app, which led me down a rabbit hole of performance optimization that culminated in rendering <strong>1 million cubes</strong>.</p>
 <h2 id="ai-meets-dsl-surprisingly-good-results">AI Meets DSL: Surprisingly Good Results</h2>
 <p>The journey started when I added <strong>Bézier curves</strong> to Revel and extended the DSL to support them. I wanted to test if AI could actually create something visually appealing using the DSL syntax. So I asked Claude to generate a scenic image.</p>
 <p>Surprisingly, it drew a pretty cute scene! A car driving through mountains with a sun, clouds, and even birds flying - all created programmatically using <strong>49 elements</strong>.</p>
@@ -179,10 +179,8 @@
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="co">// ... create thousands of elements ...</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>database_commit_transaction(canvas-&gt;model-&gt;db);</span></code></pre></div>
 <p>This change alone was <strong>massive</strong>. SQLite’s performance with bulk inserts inside a single transaction is orders of magnitude faster than individual transactions.</p>
-<p>I also rewrote several queries to use JOINs instead of separate queries, which reduced round-trips to the database.</p>
+<p>I also rewrote several queries to use JOINs instead of separate queries, which reduced round-trips to the database. Another smaller improvement: the space tree view now builds lazily - it only constructs when you actually open it, instead of building on app start.</p>
 <p>Combined with these optimizations, database operations went from being the primary bottleneck to barely noticeable.</p>
-<h3 id="other-optimizations">Other Optimizations</h3>
-<p>Beyond the major changes, I made several smaller improvements. The space tree view (which shows the hierarchy of spaces in a sidebar) now builds lazily - it only constructs the tree when you actually open it, instead of building on app start.</p>
 <h3 id="the-final-push-1-million-cubes">The Final Push: 1 Million Cubes</h3>
 <p>With all these optimizations in place, I finally reached my goal: <strong>1,000,000 cubes</strong> (a 100×100×100 grid).</p>
 <p><img src="./1_000_000.png" /></p>

@@ -4,7 +4,7 @@ author:
   - "[Dimchikkk](https://github.com/Dimchikkk)"
 ---
 
-Not so long ago, I wrote about [Revel's DSL](https://velostudio.github.io/blog/revel-part-2.html) and how it enables programmatic canvas generation. Today I'm excited to share some experiments I've been doing with DSL and AI - and how I used a python script to stress-test the app, which led me down a rabbit hole of performance optimization that culminated in rendering **1 million cubes**.
+Not so long ago, I wrote about [Revel's DSL](https://velostudio.github.io/blog/revel-part-2.html) and how it enables programmatic canvas generation. Today I'm excited to share some experiments I've been doing with DSL and AI - and how I used a Python script to stress-test the app, which led me down a rabbit hole of performance optimization that culminated in rendering **1 million cubes**.
 
 ## AI Meets DSL: Surprisingly Good Results
 
@@ -147,13 +147,9 @@ database_commit_transaction(canvas->model->db);
 
 This change alone was **massive**. SQLite's performance with bulk inserts inside a single transaction is orders of magnitude faster than individual transactions.
 
-I also rewrote several queries to use JOINs instead of separate queries, which reduced round-trips to the database.
+I also rewrote several queries to use JOINs instead of separate queries, which reduced round-trips to the database. Another smaller improvement: the space tree view now builds lazily - it only constructs when you actually open it, instead of building on app start.
 
 Combined with these optimizations, database operations went from being the primary bottleneck to barely noticeable.
-
-### Other Optimizations
-
-Beyond the major changes, I made several smaller improvements. The space tree view (which shows the hierarchy of spaces in a sidebar) now builds lazily - it only constructs the tree when you actually open it, instead of building on app start.
 
 ### The Final Push: 1 Million Cubes
 
