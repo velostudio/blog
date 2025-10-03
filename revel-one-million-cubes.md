@@ -62,6 +62,8 @@ def generate_dsl(N):
                 r = int(i / (N-1) * 150) + 105
                 g = int(j / (N-1) * 150) + 105
                 b = int(k / (N-1) * 150) + 105
+                lines.append(f'shape_create cube_{count} cube "" ({int(x_pos)},{int(y_pos)}) ({s},{s}) filled true bg #{r:02x}{g:02x}{b:02x} stroke 1 stroke_color #666666\n')
+                count += 1
 ```
 
 The script generates NxNxN cubes with an isometric 3D perspective and gradient coloring.
