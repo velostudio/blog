@@ -185,7 +185,7 @@ Every button click updates the temperature, which triggers the gauge to animate 
 
 Here's the moment I realized this DSL had gone beyond a simple scripting language. I implemented **Rule 110**, a Turing-complete cellular automaton, in 69 lines of DSL code. When you click START, it dynamically generates **250,000 visual elements** (500 cells × 500 generations) in real-time, creating a mesmerizing fractal pattern.
 
-![](rule110.png)
+<a href="rule110.png" target="_blank" style="cursor: zoom-in"><img src="rule110.png" alt="Rule 110"></a>
 
 Rule 110 is proven to be capable of universal computation. If you can implement Rule 110, your language can theoretically compute anything. Here's how it works in Revel:
 
