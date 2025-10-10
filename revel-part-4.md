@@ -507,7 +507,7 @@ The entire feature set is implemented in **pure C** using:
 
 **GTK4** for the UI layer (includes Cairo for 2D rendering)
 
-**SQLite3** for database storage (storing scripts, media as BLOBs, element properties)
+**SQLite3** for database storage (element properties, media as BLOBs)
 
 **GStreamer** for video/audio playback
 
