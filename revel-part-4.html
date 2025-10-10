@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Dimchikkk" />
+  <title>Revel Part 4: I Accidentally Built a Turing-Complete Animation Framework</title>
+  <link rel="icon" type="image/x-icon" href="./revel.ico">
+  <!-- Open Graph / Social Media Preview -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Revel Part 4: I Accidentally Built a Turing-Complete Animation Framework" />
+  <meta property="og:description" content="Revel Part 4: I Accidentally Built a Turing-Complete Animation Framework" />
+  <meta property="og:image" content="https://velostudio.github.io/blog/rule110.png" />
+  <meta property="og:url" content="https://velostudio.github.io/blog/revel-part-4.html" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Revel Part 4: I Accidentally Built a Turing-Complete Animation Framework" />
+  <meta name="twitter:description" content="Revel Part 4: I Accidentally Built a Turing-Complete Animation Framework" />
+  <meta name="twitter:image" content="https://velostudio.github.io/blog/rule110.png" />
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="gruber-darker.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Revel Part 4: I Accidentally Built a Turing-Complete Animation Framework</h1>
+<p class="author"><a href="https://github.com/Dimchikkk">Dimchikkk</a></p>
+</header>
+<p>After <a href="https://velostudio.github.io/blog/revel-one-million-cubes.html">optimizing Revel to handle 1 million cubes</a>, I decided to add animations to make my notes more dynamic. What started as “let’s make shapes move smoothly” spiraled into building an entire reactive UI framework with variables, event handlers, and presentations. Then I realized something wild: <strong>the DSL (Domain Specific Language) is Turing-complete</strong>. You can implement cellular automata, build interactive quizzes, and create data visualizations, all inside a note-taking app.</p>
+<p>This post documents how a simple animation system evolved into something that can theoretically compute anything.</p>
+<h2 id="the-animation-foundation">The Animation Foundation</h2>
+<p>Every complex system needs solid fundamentals. I implemented eight interpolation curves to make animations feel natural:</p>
+<p><strong>immediate</strong>: Instant jumps (no interpolation)</p>
+<p><strong>linear</strong>: Constant speed motion</p>
+<p><strong>bezier</strong>: Smooth professional ease-in-out</p>
+<p><strong>ease-in/ease-out</strong>: Acceleration/deceleration curves</p>
+<p><strong>bounce</strong>: Playful bouncing effect at the end</p>
+<p><strong>elastic</strong>: Spring-like oscillation</p>
+<p><strong>back</strong>: Overshoots then settles</p>
+<p><img src="8_interpolation_types.gif" /></p>
+<p>The syntax follows a consistent pattern: <strong>what → where → when → how long → how</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>animation_mode</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>shape_create star circle <span class="st">&quot;⭐&quot;</span> (<span class="dv">100</span>,<span class="dv">100</span>) (<span class="dv">60</span>,<span class="dv">60</span>) bg <span class="co">#ffd700 filled true</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>animate_move star (<span class="dv">100</span>,<span class="dv">100</span>) (<span class="dv">500</span>,<span class="dv">300</span>) <span class="fl">0.0</span> <span class="fl">2.0</span> bezier</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>animate_resize star (<span class="dv">60</span>,<span class="dv">60</span>) (<span class="dv">120</span>,<span class="dv">120</span>) <span class="fl">0.0</span> <span class="fl">2.0</span> elastic</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>animate_rotate star <span class="dv">0</span> <span class="dv">360</span> <span class="fl">0.0</span> <span class="fl">2.0</span> linear</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a>animate_color star <span class="co">#ffd700 #ff0000 2.0 1.5 bezier</span></span></code></pre></div>
+<p>Five animation primitives cover everything: <code>animate_move</code>, <code>animate_resize</code>, <code>animate_rotate</code>, <code>animate_color</code>, and <code>animate_appear</code>/<code>animate_disappear</code> for opacity transitions. Multiple animations stack seamlessly. A shape can move, resize, rotate, and change color simultaneously.</p>
+<p><img src="animation_elegant_demo.gif" /></p>
+<p>Animations can play once (<code>animation_mode</code>) or loop forever (<code>animation_mode cycled</code>). Looping mode is perfect for breathing buttons, rotating logos, or any continuous visualization.</p>
+<h2 id="presentation-mode-slides-and-navigation">Presentation Mode: Slides and Navigation</h2>
+<p>Once I had smooth animations, I realized this could be a presentation tool. Why not split scripts into slides?</p>
+<p>I added <code>animation_next_slide</code> as a slide delimiter. Press <strong>Ctrl+Right Arrow</strong> to advance forward, <strong>Ctrl+Left Arrow</strong> to go back. Each slide starts fresh, previous elements clear automatically, but you maintain forward progress through your narrative.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="co"># Slide 1: Title</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>animation_mode</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>canvas_background (<span class="fl">0.08</span>,<span class="fl">0.08</span>,<span class="fl">0.12</span>,<span class="fl">1.0</span>) true</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>text_create title <span class="st">&quot;Welcome to Revel&quot;</span> (<span class="dv">400</span>,<span class="dv">300</span>) (<span class="dv">400</span>,<span class="dv">100</span>) text_color <span class="co">#60a5fa font &quot;Ubuntu Bold 48&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>animate_appear title <span class="fl">0.0</span> <span class="fl">1.2</span> bezier</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>animation_next_slide</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a><span class="co"># Slide 2: Content reveals</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a>text_create header <span class="st">&quot;Key Features&quot;</span> (<span class="dv">100</span>,<span class="dv">80</span>) (<span class="dv">800</span>,<span class="dv">60</span>) text_color <span class="co">#3b82f6 font &quot;Ubuntu Bold 36&quot;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>shape_create box1 roundedrect <span class="st">&quot;Infinite Canvas&quot;</span> (<span class="dv">120</span>,<span class="dv">200</span>) (<span class="dv">350</span>,<span class="dv">100</span>) bg <span class="co">#1e40af filled true</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>shape_create box2 roundedrect <span class="st">&quot;DSL Automation&quot;</span> (<span class="dv">120</span>,<span class="dv">320</span>) (<span class="dv">350</span>,<span class="dv">100</span>) bg <span class="co">#1e40af filled true</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>animate_appear box1 <span class="fl">0.5</span> <span class="fl">0.6</span> bezier</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>animate_appear box2 <span class="fl">1.2</span> <span class="fl">0.6</span> bezier</span></code></pre></div>
+<p><img src="presentation_demo.gif" /></p>
+<p>Each slide can have its own animation mode. You can mix static slides with animated ones, or create continuously looping visualizations. Hide the toolbar with <strong>Ctrl+Shift+T</strong> for distraction-free presentations.</p>
+<h2 id="variables-and-reactivity-building-interactive-systems">Variables and Reactivity: Building Interactive Systems</h2>
+<p>Here’s where it gets interesting. Static presentations are nice, but what about <strong>interactive dashboards</strong>? What if elements could respond to clicks and update based on calculated values?</p>
+<p>I added four variable types with full expression support:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="bu">int</span> sales_q1 <span class="dv">1000</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="bu">int</span> sales_q2 <span class="dv">1500</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="co"># Computed from other variables</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="bu">int</span> total {sales_q1 <span class="op">+</span> sales_q2}</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a><span class="co"># String interpolation</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>string status <span class="st">&quot;Total: $</span><span class="sc">{total}</span><span class="st">&quot;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a><span class="co"># Boolean expressions</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a><span class="bu">bool</span> is_profitable {total <span class="op">&gt;</span> <span class="dv">2000</span>}</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>real growth_rate {(sales_q2 <span class="op">-</span> sales_q1) <span class="op">/</span> sales_q1}</span></code></pre></div>
+<p>Then came event handlers. This is the magic that makes everything reactive:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>shape_create button roundedrect <span class="st">&quot;Click Me&quot;</span> (<span class="dv">100</span>,<span class="dv">100</span>) (<span class="dv">150</span>,<span class="dv">60</span>) bg <span class="co">#3b82f6 filled true</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>text_create counter_label <span class="st">&quot;Clicks: 0&quot;</span> (<span class="dv">100</span>,<span class="dv">200</span>) (<span class="dv">200</span>,<span class="dv">40</span>) font <span class="st">&quot;Ubuntu 20&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="bu">int</span> clicks <span class="dv">0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>on click button</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a>  <span class="bu">set</span> clicks {clicks <span class="op">+</span> <span class="dv">1</span>}</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a>  text_update counter_label <span class="st">&quot;Clicks: $</span><span class="sc">{clicks}</span><span class="st">&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a>end</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a>on variable clicks</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a>  animate_color button <span class="co">#3b82f6 #10b981 0.0 0.3 bezier</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a>end</span></code></pre></div>
+<p>The <strong><code>on click</code></strong> handlers fire when elements are clicked. The <strong><code>on variable</code></strong> handlers fire whenever a variable changes. This creates a reactive system where data changes automatically propagate through your UI.</p>
+<h3 id="real-example-interactive-sales-dashboard">Real Example: Interactive Sales Dashboard</h3>
+<p><img src="interactive_dashboard.gif" /></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="bu">int</span> data_q1 <span class="dv">1000</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a><span class="bu">int</span> data_q2 <span class="dv">1500</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="bu">int</span> data_q3 <span class="dv">1200</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a><span class="bu">int</span> data_q4 <span class="dv">1800</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="bu">int</span> total {data_q1 <span class="op">+</span> data_q2 <span class="op">+</span> data_q3 <span class="op">+</span> data_q4}</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>text_create title <span class="st">&quot;Sales Dashboard&quot;</span> (<span class="dv">400</span>,<span class="dv">50</span>) (<span class="dv">400</span>,<span class="dv">60</span>) font <span class="st">&quot;Ubuntu Bold 36&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>text_create total_label <span class="st">&quot;Total: $</span><span class="sc">{total}</span><span class="st">&quot;</span> (<span class="dv">400</span>,<span class="dv">120</span>) (<span class="dv">300</span>,<span class="dv">40</span>) text_color <span class="co">#22c55e font &quot;Ubuntu Bold 24&quot;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a><span class="co"># Bars positioned based on their values</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>shape_create bar1 rectangle <span class="st">&quot;Q1&quot;</span> (<span class="dv">150</span>,{<span class="dv">600</span> <span class="op">-</span> data_q1<span class="op">/</span><span class="dv">5</span>}) (<span class="dv">80</span>,{data_q1<span class="op">/</span><span class="dv">5</span>}) bg <span class="co">#3b82f6 filled true</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>shape_create bar2 rectangle <span class="st">&quot;Q2&quot;</span> (<span class="dv">280</span>,{<span class="dv">600</span> <span class="op">-</span> data_q2<span class="op">/</span><span class="dv">5</span>}) (<span class="dv">80</span>,{data_q2<span class="op">/</span><span class="dv">5</span>}) bg <span class="co">#8b5cf6 filled true</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>on click bar1</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>  <span class="co"># Add $100 to Q1</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>  <span class="bu">set</span> data_q1 {data_q1 <span class="op">+</span> <span class="dv">100</span>}</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a>end</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a>on variable data_q1</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true"></a>  animate_resize bar1 (<span class="dv">80</span>,{data_q1<span class="op">/</span><span class="dv">5</span>}) <span class="fl">0.0</span> <span class="fl">0.4</span> bezier</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true"></a>  animate_move bar1 (<span class="dv">150</span>,{<span class="dv">600</span> <span class="op">-</span> data_q1<span class="op">/</span><span class="dv">5</span>}) <span class="fl">0.0</span> <span class="fl">0.4</span> bezier</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true"></a>end</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true"></a>on variable total</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true"></a>  text_update total_label <span class="st">&quot;Total: $</span><span class="sc">{total}</span><span class="st">&quot;</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true"></a>end</span></code></pre></div>
+<p>Click a bar → variable updates → animation triggers → total recalculates → label refreshes. Pure reactive data flow with smooth animations.</p>
+<h3 id="interactive-thermostat-control">Interactive Thermostat Control</h3>
+<p><img src="interactive_gauge.gif" /></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="bu">int</span> current_temp <span class="dv">68</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="bu">int</span> min_temp <span class="dv">60</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="bu">int</span> max_temp <span class="dv">80</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a>text_create readout <span class="st">&quot;Temp: $</span><span class="sc">{current_temp}</span><span class="st">°F&quot;</span> (<span class="dv">200</span>,<span class="dv">320</span>) (<span class="dv">220</span>,<span class="dv">60</span>) text_color <span class="co">#22d3ee font &quot;Ubuntu Bold 28&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a>shape_create gauge_fill roundedrect <span class="st">&quot;&quot;</span> (<span class="dv">420</span>,<span class="dv">280</span>) (<span class="dv">120</span>,{(current_temp <span class="op">-</span> min_temp) <span class="op">*</span> <span class="dv">10</span>}) bg <span class="co">#22d3ee filled true</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>shape_create up_btn circle <span class="st">&quot;▲&quot;</span> (<span class="dv">640</span>,<span class="dv">220</span>) (<span class="dv">90</span>,<span class="dv">90</span>) bg <span class="co">#10b981 filled true</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>shape_create down_btn circle <span class="st">&quot;▼&quot;</span> (<span class="dv">640</span>,<span class="dv">360</span>) (<span class="dv">90</span>,<span class="dv">90</span>) bg <span class="co">#f97316 filled true</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>on click up_btn</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a>  <span class="bu">set</span> current_temp {current_temp <span class="op">+</span> <span class="dv">1</span>}</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a>end</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>on click down_btn</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>  <span class="bu">set</span> current_temp {current_temp <span class="op">-</span> <span class="dv">1</span>}</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a>end</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a>on variable current_temp</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a>  text_update readout <span class="st">&quot;Temp: $</span><span class="sc">{current_temp}</span><span class="st">°F&quot;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a>  animate_resize gauge_fill (<span class="dv">120</span>,{(current_temp <span class="op">-</span> min_temp) <span class="op">*</span> <span class="dv">10</span>}) <span class="fl">0.0</span> <span class="fl">0.35</span> bezier</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a>end</span></code></pre></div>
+<p>Every button click updates the temperature, which triggers the gauge to animate smoothly to the new value. The readout updates in real-time. All declarative, all reactive.</p>
+<h2 id="turing-completeness-rule-110-cellular-automaton">Turing Completeness: Rule 110 Cellular Automaton</h2>
+<p>Here’s the moment I realized this DSL had gone beyond a simple scripting language. I implemented <strong>Rule 110</strong>, a Turing-complete cellular automaton, in 69 lines of DSL code. When you click START, it dynamically generates <strong>250,000 visual elements</strong> (500 cells × 500 generations) in real-time, creating a mesmerizing fractal pattern.</p>
+<p><img src="rule110.png" /></p>
+<p>Rule 110 is proven to be capable of universal computation. If you can implement Rule 110, your language can theoretically compute anything. Here’s how it works in Revel:</p>
+<h3 id="the-setup">The Setup</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>canvas_background (<span class="fl">0.05</span>,<span class="fl">0.05</span>,<span class="fl">0.08</span>,<span class="fl">1.0</span>) false</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a><span class="co"># Current generation: 500 cells</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a><span class="bu">int</span> c[<span class="dv">500</span>] <span class="dv">0</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a><span class="co"># Seed with rightmost cell alive</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true"></a><span class="bu">set</span> c[<span class="dv">499</span>] <span class="dv">1</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true"></a><span class="co"># Next generation buffer</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true"></a><span class="bu">int</span> <span class="bu">next</span>[<span class="dv">500</span>] <span class="dv">0</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true"></a><span class="co"># Generation counter</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true"></a><span class="bu">int</span> gen <span class="dv">0</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true"></a><span class="co"># State machine: 0=idle, 1=draw, 2=compute, 3=copy</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true"></a><span class="bu">int</span> step <span class="dv">0</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true"></a>shape_create btn rectangle <span class="st">&quot;START&quot;</span> (<span class="dv">400</span>,<span class="dv">20</span>) (<span class="dv">150</span>,<span class="dv">50</span>) filled true bg (<span class="fl">0.2</span>,<span class="fl">0.6</span>,<span class="fl">0.9</span>,<span class="fl">1.0</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true"></a>text_create lbl <span class="st">&quot;Gen: 0 / 500&quot;</span> (<span class="dv">570</span>,<span class="dv">30</span>) (<span class="dv">150</span>,<span class="dv">30</span>) text_color (<span class="fl">0.8</span>,<span class="fl">0.8</span>,<span class="fl">0.8</span>,<span class="fl">1.0</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true"></a>on click btn</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true"></a>  <span class="co"># Launch the simulation</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true"></a>  <span class="bu">set</span> step <span class="dv">1</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true"></a>end</span></code></pre></div>
+<h3 id="the-state-machine">The State Machine</h3>
+<p>The simulation runs through three phases, orchestrated by the <code>step</code> variable:</p>
+<p><strong>Phase 1: Draw</strong> (Render the current generation as a row of pixels)</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>on variable step <span class="op">==</span> <span class="dv">1</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  <span class="bu">set</span> gen {gen <span class="op">+</span> <span class="dv">1</span>}</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>  <span class="cf">for</span> i <span class="dv">0</span> <span class="dv">499</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a>    shape_create r${gen}c${i} rectangle <span class="st">&quot;&quot;</span> ({<span class="dv">10</span><span class="op">+</span>i<span class="op">*</span><span class="dv">6</span>},{<span class="dv">120</span><span class="op">+</span>gen<span class="op">*</span><span class="dv">6</span>}) (<span class="dv">5</span>,<span class="dv">5</span>) filled true bg {c[i],c[i],c[i],<span class="fl">1.0</span>}</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>  end</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>  text_update lbl <span class="st">&quot;Gen: $</span><span class="sc">{gen}</span><span class="st"> / 500&quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a>  <span class="bu">set</span> step <span class="dv">2</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>end</span></code></pre></div>
+<p>Notice the dynamic element creation: <code>r${gen}c${i}</code> creates unique IDs like <code>r1c0</code>, <code>r1c1</code>, <code>r2c0</code>, etc. The color expression <code>{c[i],c[i],c[i],1.0}</code> maps 0 to black, 1 to white.</p>
+<p><strong>Phase 2: Compute</strong> (Apply Rule 110’s pattern matching)</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a>on variable step <span class="op">==</span> <span class="dv">2</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>  <span class="cf">for</span> i <span class="dv">1</span> <span class="dv">498</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a>    <span class="bu">set</span> left {c[i <span class="op">-</span> <span class="dv">1</span>]}</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>    <span class="bu">set</span> right {c[i <span class="op">+</span> <span class="dv">1</span>]}</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a>    <span class="co"># Convert neighbors to binary</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>    <span class="bu">set</span> pattern {left <span class="op">*</span> <span class="dv">4</span> <span class="op">+</span> c[i] <span class="op">*</span> <span class="dv">2</span> <span class="op">+</span> right}</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>    <span class="co"># Rule 110: survive if pattern is 1,2,3,5, or 6</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>    <span class="bu">set</span> <span class="bu">next</span>[i] {(pattern <span class="op">==</span> <span class="dv">1</span>) <span class="op">+</span> (pattern <span class="op">==</span> <span class="dv">2</span>) <span class="op">+</span> (pattern <span class="op">==</span> <span class="dv">3</span>) <span class="op">+</span> (pattern <span class="op">==</span> <span class="dv">5</span>) <span class="op">+</span> (pattern <span class="op">==</span> <span class="dv">6</span>)}</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>  end</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>  <span class="bu">set</span> step <span class="dv">3</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a>end</span></code></pre></div>
+<p>The boolean arithmetic trick: <code>(pattern == 1) + (pattern == 2) + ...</code> evaluates each comparison to 0 or 1, summing to 1 if any match. No conditional statements needed!</p>
+<p><strong>Phase 3: Copy and Loop</strong> (Swap buffers and continue)</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a>on variable step <span class="op">==</span> <span class="dv">3</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  <span class="cf">for</span> i <span class="dv">0</span> <span class="dv">499</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>    <span class="co"># Copy next generation to current</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a>    <span class="bu">set</span> c[i] {<span class="bu">next</span>[i]}</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>  end</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>  <span class="co"># Continue if more generations remain</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>  <span class="bu">set</span> step {(gen <span class="op">&lt;</span> <span class="dv">500</span>) <span class="op">*</span> <span class="dv">1</span>}</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>end</span></code></pre></div>
+<p>The clever continuation: <code>{(gen &lt; 500) * 1}</code> evaluates to 1 (continue) or 0 (stop). When <code>step</code> becomes 1, the whole cycle repeats automatically.</p>
+<h3 id="why-this-matters">Why This Matters</h3>
+<p>This demonstrates computational universality. The DSL has:</p>
+<p><strong>Arrays</strong> for memory storage (<code>int c[500]</code>)</p>
+<p><strong>Loops</strong> for iteration (<code>for i 0 499</code>)</p>
+<p><strong>Conditional logic</strong> through arithmetic expressions (<code>{(gen &lt; 500) * 1}</code>)</p>
+<p><strong>Dynamic code generation</strong> (<code>r${gen}c${i}</code>)</p>
+<p><strong>Event-driven execution</strong> (<code>on variable step == N</code>)</p>
+<p>These primitives combine to create a Turing-complete system. You could implement Conway’s Game of Life, a brainfuck interpreter, or any other computational system.</p>
+<h2 id="grid-visualization-10000-elements-in-one-click">Grid Visualization: 10,000 Elements in One Click</h2>
+<p>The grid example showcases the DSL’s ability to generate massive layouts programmatically:</p>
+<p><img src="grid.gif" /></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a>canvas_background (<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="fl">0.15</span>,<span class="fl">1.0</span>) false</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a><span class="bu">int</span> N <span class="dv">100</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true"></a><span class="bu">int</span> grid_size N</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true"></a>real max_index {N<span class="op">-</span><span class="dv">1</span>}</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true"></a><span class="bu">int</span> step <span class="dv">0</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true"></a>shape_create btn rectangle <span class="st">&quot;Create Grid&quot;</span> (<span class="dv">10</span>,<span class="dv">10</span>) (<span class="dv">150</span>,<span class="dv">40</span>) filled true bg (<span class="fl">0.3</span>,<span class="fl">0.6</span>,<span class="fl">0.9</span>,<span class="fl">1.0</span>) text_color (<span class="fl">1.0</span>,<span class="fl">1.0</span>,<span class="fl">1.0</span>,<span class="fl">1.0</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true"></a>on click btn</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true"></a>  <span class="bu">set</span> step <span class="dv">1</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true"></a>end</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true"></a>on variable step <span class="op">==</span> <span class="dv">1</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true"></a>  <span class="cf">for</span> row <span class="dv">0</span> max_index</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true"></a>    <span class="cf">for</span> col <span class="dv">0</span> max_index</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true"></a>      shape_create cell${row}${col} rectangle <span class="st">&quot;&quot;</span> ({<span class="dv">50</span><span class="op">+</span>col<span class="op">*</span><span class="dv">52</span>},{<span class="dv">70</span><span class="op">+</span>row<span class="op">*</span><span class="dv">52</span>}) (<span class="dv">48</span>,<span class="dv">48</span>) filled true bg ({row<span class="op">/</span>max_index},{col<span class="op">/</span>max_index},<span class="fl">0.5</span>,<span class="fl">1.0</span>)</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true"></a>    end</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true"></a>  end</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true"></a>  <span class="bu">set</span> step <span class="dv">2</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true"></a>end</span></code></pre></div>
+<p>One click creates <strong>10,000 squares</strong> with a smooth color gradient. The color calculation <code>({row/max_index},{col/max_index},0.5,1.0)</code> generates a red-green gradient across the grid. Each cell gets a unique ID like <code>cell0c0</code>, <code>cell42c73</code>, etc.</p>
+<p>This demonstrates the power of programmatic generation. Creating complex layouts that would be impossible to build manually.</p>
+<h2 id="global-vs.-local-variables-persistent-state">Global vs. Local Variables: Persistent State</h2>
+<p>Presentations introduced a challenge: slides clear all elements when you navigate. But what if you need to track quiz scores across multiple questions?</p>
+<p><strong>Global variables</strong> persist across slides:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">global</span> <span class="bu">int</span> score <span class="dv">0</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a><span class="kw">global</span> <span class="bu">int</span> attempts <span class="dv">0</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a><span class="kw">global</span> string student_answer <span class="st">&quot;&quot;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a><span class="co"># These survive animation_next_slide transitions</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="co"># This resets on each slide</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true"></a><span class="bu">int</span> slide_local <span class="dv">100</span></span></code></pre></div>
+<p>This enables multi-slide quizzes, progress tracking, and stateful presentations. Local variables reset per slide, globals persist throughout the entire session.</p>
+<h2 id="interactive-quizzes-auto-advancing-slides">Interactive Quizzes: Auto-Advancing Slides</h2>
+<p><img src="quiz.gif" /></p>
+<p>Manual slide navigation works for presentations, but quizzes should advance automatically when you answer correctly. Enter <code>presentation_auto_next_if</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true"></a><span class="kw">global</span> <span class="bu">int</span> correct_total <span class="dv">0</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true"></a><span class="kw">global</span> <span class="bu">int</span> planet_done <span class="dv">0</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true"></a>text_create prompt <span class="st">&quot;Which planet is known as the Red Planet?&quot;</span> (<span class="dv">360</span>,<span class="dv">200</span>) (<span class="dv">540</span>,<span class="dv">40</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true"></a>shape_create option_mars roundedrect <span class="st">&quot;Mars&quot;</span> (<span class="dv">360</span>,<span class="dv">280</span>) (<span class="dv">280</span>,<span class="dv">60</span>) bg <span class="co">#3b82f6 filled true</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true"></a>shape_create option_venus roundedrect <span class="st">&quot;Venus&quot;</span> (<span class="dv">360</span>,<span class="dv">360</span>) (<span class="dv">280</span>,<span class="dv">60</span>) bg <span class="co">#3b82f6 filled true</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true"></a>on click option_mars</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true"></a>  text_update feedback <span class="st">&quot;✓ Correct! Mars is the Red Planet.&quot;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true"></a>  <span class="bu">set</span> correct_total {correct_total <span class="op">+</span> <span class="dv">1</span>}</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true"></a>  <span class="bu">set</span> planet_done <span class="dv">1</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true"></a>end</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true"></a>on click option_venus</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true"></a>  text_update feedback <span class="st">&quot;✗ Incorrect. Try again.&quot;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true"></a>end</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true"></a>on variable planet_done</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true"></a>  <span class="co"># Auto-advance when correct</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true"></a>  presentation_auto_next_if planet_done <span class="dv">1</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true"></a>end</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true"></a>animation_next_slide</span></code></pre></div>
+<p>The quiz tracks your score globally, provides feedback, and automatically advances when you select the right answer. You can also use <code>text_bind</code> to create text input fields that trigger progression when the user enters the correct string.</p>
+<p>The included <code>examples/quiz.dsl</code> has three different question types: multiple choice buttons, text input, and card selection - all with automatic progression and score tracking.</p>
+<h2 id="text-input-and-drag-and-drop">Text Input and Drag-and-Drop</h2>
+<p>Interactive learning requires more than just buttons. I added two powerful binding mechanisms:</p>
+<p><strong>Text Input</strong> - Bind a text element to a string variable:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true"></a>string answer <span class="st">&quot;&quot;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true"></a>text_create input_box <span class="st">&quot;&quot;</span> (<span class="dv">300</span>,<span class="dv">200</span>) (<span class="dv">400</span>,<span class="dv">50</span>) bg <span class="co">#ffffff</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true"></a>text_bind input_box answer</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true"></a>on variable answer</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true"></a>  <span class="co"># Check if answer is correct and auto-advance</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true"></a>  presentation_auto_next_if answer <span class="st">&quot;evaporation&quot;</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true"></a>end</span></code></pre></div>
+<p>When the user edits the text and presses <strong>Enter</strong>, the variable updates and triggers all <code>on variable</code> handlers.</p>
+<p><strong>Position Tracking</strong> - Track element positions for drag-and-drop activities:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true"></a>string draggable_pos <span class="st">&quot;&quot;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true"></a>shape_create box circle <span class="st">&quot;📦&quot;</span> (<span class="dv">100</span>,<span class="dv">100</span>) (<span class="dv">60</span>,<span class="dv">60</span>) bg <span class="co">#f59e0b filled true</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true"></a>position_bind box draggable_pos</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true"></a>on variable draggable_pos</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true"></a>  <span class="co"># Check if box was dragged to the target zone</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true"></a>  <span class="co"># The draggable_pos variable contains &quot;x,y&quot; coordinates</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true"></a>end</span></code></pre></div>
+<p>Whenever the element moves, the variable updates with the new coordinates as a string like <code>"420,180"</code>. Perfect for drag-and-match educational activities.</p>
+<h2 id="data-visualization-line-plots">Data Visualization: Line Plots</h2>
+<p>Educational content and dashboards need charts. I added a <code>plot</code> shape type that renders line graphs from CSV-style data:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true"></a><span class="co"># Multi-line plot with automatic legend</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true"></a>shape_create sales_chart plot <span class="st">&quot;line Q1 0,10 1,25 2,20 3,35 4,30</span><span class="ch">\n</span><span class="st">line Q2 0,15 1,30 2,25 3,40 4,35</span><span class="ch">\n</span><span class="st">line Q3 0,12 1,22 2,28 3,33 4,38&quot;</span> (<span class="dv">100</span>,<span class="dv">100</span>) (<span class="dv">500</span>,<span class="dv">350</span>) stroke_width <span class="dv">2</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true"></a><span class="co"># Single line with Y values only (X auto-indexed)</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true"></a>shape_create temperature plot <span class="st">&quot;10</span><span class="ch">\n</span><span class="st">25</span><span class="ch">\n</span><span class="st">15</span><span class="ch">\n</span><span class="st">35</span><span class="ch">\n</span><span class="st">20</span><span class="ch">\n</span><span class="st">45&quot;</span> (<span class="dv">100</span>,<span class="dv">400</span>) (<span class="dv">400</span>,<span class="dv">300</span>) stroke_color <span class="co">#22c55e stroke_width 3</span></span></code></pre></div>
+<p><img src="plot.png" /></p>
+<p>Plots auto-scale to fit the data range, display gridlines with actual values, and include legends for multi-line charts. Perfect for teaching statistics, visualizing experiment results, or creating live data dashboards.</p>
+<h2 id="audio-system-mp3-playlists">Audio System: MP3 Playlists</h2>
+<p>Revel already supported images and MP4 videos. Adding MP3 playback was a natural extension:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true"></a>audio_create track1 <span class="op">/</span>path<span class="op">/</span>to<span class="op">/</span>song1.mp3 (<span class="dv">0</span>, <span class="dv">0</span>)   (<span class="dv">200</span>, <span class="dv">200</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true"></a>audio_create track2 <span class="op">/</span>path<span class="op">/</span>to<span class="op">/</span>song2.mp3 (<span class="dv">0</span>, <span class="dv">500</span>) (<span class="dv">200</span>, <span class="dv">200</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true"></a>audio_create track3 <span class="op">/</span>path<span class="op">/</span>to<span class="op">/</span>song3.mp3 (<span class="dv">500</span>, <span class="dv">0</span>) (<span class="dv">200</span>, <span class="dv">200</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true"></a><span class="ex">connect</span> track1 track2</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true"></a><span class="ex">connect</span> track2 track3</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true"></a><span class="co"># Loop back to create continuous playlist</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true"></a><span class="ex">connect</span> track3 track1</span></code></pre></div>
+<p>Audio files are stored directly in the SQLite database as BLOBs, just like images and videos. Connect audio elements with arrows to create playlists. When one track finishes, the next one starts automatically. Connect the last track back to the first for continuous looping.</p>
+<p>This enables background music for presentations, audio cues for interactive demos, or educational content with narration.</p>
+<h2 id="type-checker-catching-errors-before-execution">Type Checker: Catching Errors Before Execution</h2>
+<p>With great power comes complexity. The DSL grew sophisticated enough that catching errors early became critical. I built a type checker that validates scripts before execution:</p>
+<p>Variable type checking (int, real, bool, string)</p>
+<p>Array bounds validation</p>
+<p>Expression type compatibility</p>
+<p>Command syntax validation</p>
+<p>Element ID uniqueness</p>
+<p>The type checker lives in <code>src/dsl/dsl_type_checker.c</code> and runs automatically when you execute scripts. Instead of cryptic runtime crashes, you get helpful error messages pointing to the exact line and describing what went wrong.</p>
+<h2 id="export-to-dsl-reverse-engineering-your-canvas">Export to DSL: Reverse Engineering Your Canvas</h2>
+<p>One of my favorite workflows: build something visually on the canvas, then click <strong>“Export to DSL”</strong> to generate the code.</p>
+<p>I manually drew a triangle with lines and text labels. No code, just visual composition. Then exported it to DSL and got clean, readable code representing every element:</p>
+<p><img src="triangle.png" /></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true"></a><span class="co"># Generated from canvas elements</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true"></a>shape_create line1 line <span class="st">&quot;&quot;</span> (<span class="dv">100</span>,<span class="dv">200</span>) (<span class="dv">150</span>,<span class="dv">80</span>) bg <span class="co">#3b82f6 stroke 2</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true"></a>shape_create line2 line <span class="st">&quot;&quot;</span> (<span class="dv">100</span>,<span class="dv">200</span>) (<span class="dv">200</span>,<span class="dv">120</span>) bg <span class="co">#8b5cf6 stroke 2</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true"></a>text_create label_a <span class="st">&quot;a&quot;</span> (<span class="dv">110</span>,<span class="dv">180</span>) (<span class="dv">40</span>,<span class="dv">30</span>) text_color <span class="co">#ffffff font &quot;Ubuntu 18&quot;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true"></a>text_create label_b <span class="st">&quot;b&quot;</span> (<span class="dv">150</span>,<span class="dv">210</span>) (<span class="dv">40</span>,<span class="dv">30</span>) text_color <span class="co">#ffffff font &quot;Ubuntu 18&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true"></a><span class="co"># ... 18 elements total</span></span></code></pre></div>
+<p><a href="triangle.dsl">Full triangle.dsl available here</a></p>
+<p>The exported DSL is clean and ready to modify. Duplicate it, parameterize values, or use it as a template. This bridges the gap between visual creation and programmatic generation.</p>
+<h2 id="what-you-can-build">What You Can Build</h2>
+<p>The combination of infinite canvas, DSL automation, and interactive presentations opens up interesting possibilities:</p>
+<p><strong>Interview preparation</strong>: Visual algorithm explanations with animations showing how quicksort partitions arrays or how B-trees rebalance</p>
+<p><strong>System design practice</strong>: Interactive diagrams where clicking a load balancer shows request distribution</p>
+<p><strong>Project planning</strong>: Timelines with progress tracking and automated status updates</p>
+<p><strong>Learning tools</strong>: Quizzes that test understanding of distributed systems concepts</p>
+<p>You can think visually, prototype interactively, then codify the patterns that work. I’m still exploring what’s possible with these capabilities.</p>
+<h2 id="technical-implementation">Technical Implementation</h2>
+<p>The entire feature set is implemented in <strong>pure C</strong> using:</p>
+<p><strong>GTK4</strong> for the UI layer (includes Cairo for 2D rendering)</p>
+<p><strong>SQLite3</strong> for database storage (storing scripts, media as BLOBs, element properties)</p>
+<p><strong>GStreamer</strong> for video/audio playback</p>
+<p>No framework bloat. No dependency hell. No bundled JavaScript runtime. Just direct systems programming that compiles to a ~488KB binary and will keep working for decades.</p>
+<h2 id="what-i-learned">What I Learned</h2>
+<p>Building this reminded me why I love programming:</p>
+<ol type="1">
+<li><strong>Simple ideas compound</strong>. “Let’s add animations” turned into “We built a Turing-complete reactive framework”</li>
+<li><strong>Constraints breed creativity</strong>. Working within a note-taking app’s context led to unique solutions</li>
+<li><strong>Composition is powerful</strong>. Each feature (variables, events, loops, arrays) multiplied the possibilities</li>
+<li><strong>User-driven design works</strong>. Every feature emerged from actual usage: “I wish I could do X” → implement X → discover Y is now possible</li>
+</ol>
+<p>The DSL made everything composable. Animations + variables = reactive UIs. Variables + events = interactive quizzes. Loops + arrays + events = cellular automata. Each primitive combines with others to enable emergent complexity.</p>
+<h2 id="try-it-yourself">Try It Yourself</h2>
+<p>All the examples mentioned are included in the <code>examples/</code> directory (tested on Linux):</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true"></a>git clone https:<span class="op">//</span>github.com<span class="op">/</span>Dimchikkk<span class="op">/</span>revel</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true"></a>cd revel</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true"></a>make</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true"></a><span class="co"># Run the Turing-complete cellular automaton</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true"></a>.<span class="op">/</span>revel <span class="op">--</span>dsl examples<span class="op">/</span>rule110.dsl</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true"></a><span class="co"># Generate a 10,000-element grid instantly</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true"></a>.<span class="op">/</span>revel <span class="op">--</span>dsl examples<span class="op">/</span>grid.dsl</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true"></a><span class="co"># Try the interactive quiz with auto-progression</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true"></a>.<span class="op">/</span>revel <span class="op">--</span>dsl examples<span class="op">/</span>quiz.dsl</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true"></a><span class="co"># Explore the sales dashboard</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true"></a>.<span class="op">/</span>revel <span class="op">--</span>dsl examples<span class="op">/</span>interactive_dashboard.dsl</span></code></pre></div>
+<p>Check out <code>DSL.md</code> for the complete language reference.</p>
+<h2 id="im-looking-for-work">I’m Looking for Work</h2>
+<p>I’m currently looking for a full-time software engineering role. If you’re working on interesting problems and think this kind of work resonates with what your team does, feel free to reach out: <strong>velo.app1@gmail.com</strong></p>
+<hr />
+<p><strong>Links:</strong></p>
+<ul>
+<li>GitHub: <a href="https://github.com/Dimchikkk/revel">github.com/Dimchikkk/revel</a></li>
+<li>Complete DSL Reference: <a href="https://github.com/Dimchikkk/revel/blob/main/DSL.md">DSL.md</a></li>
+<li>Part 1: <a href="https://velostudio.github.io/blog/revel.html">Revel: My Experiment in Infinite, Portable Note-Taking</a></li>
+<li>Part 2: <a href="https://velostudio.github.io/blog/revel-part-2.html">Building a DSL for Canvas Automation in C</a></li>
+<li>Part 3: <a href="https://velostudio.github.io/blog/revel-one-million-cubes.html">Rendering 1 Million Cubes</a></li>
+</ul>
+</body>
+</html>
